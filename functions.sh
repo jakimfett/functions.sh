@@ -1,5 +1,9 @@
 #!/bin/bash
-# Common functions and utilities for scripts
+#
+# author: @jakimfett
+# license: cc-by-na
+#
+# Common functions and utilities for Debian Linux shell scripts
 
 
 # @TODO - Add auto update to scripts, with md5 verify.
@@ -29,7 +33,7 @@ if [ "$0" == "$BASH_SOURCE" ];then
     echo "Include this block at the top of your script to allow access to functions:"
     echo
     echo -e '\t########### Include functions ###########'
-    echo -e '\tif [[ `git status 2>&1| head -1 ` == *"fatal"* ]];then curl https://functions.sh -o ./functions.sh;fi'
+    echo -e '\tif [[ `git status 2>&1| head -1 ` == *"fatal"* ]];then curl https://cdn.irregular.team/functions.sh -o ./functions.sh;fi'
     echo -e '\tsource "`dirname "$0"`/functions.sh"'
     echo -e '\tif [ ! "`type -t siteRootCheck`" == "function" ];then echo "Please navigate to the website root folder and try again";exit;fi'
     echo -e '\t########### End include functions #######'

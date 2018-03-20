@@ -1,20 +1,18 @@
-#!/bin/bash
+# source this file from your .bash_profile
+#
 # author: @jakimfett
+# license: cc-by-na
+#
+# Useful aliases for using these functions.
 
 # Always make sure you can fix your problems quickly
 alias reload='source ~/.bash_aliases;source ~/.bash_profile'
 
-# Terminal coloring (mac)
-export CLICOLOR=1
-export LSCOLORS=GxFxCxDxBxegedabagaced
-
 # Project Locations
-alias fsh='cd ~/Documents/projects/functions.sh'
+alias fsh='cd ~/functions.sh'
 
 # Project SSH Aliases
-alias picraft='ssh picraft@ssh.picraft.com'
-alias pics='ssh jakimfett@ssh.jakimfett.com'
-alias badfruit='ssh jakimfett@badfruit.jakimfett.com'
+alias cdn='ssh ssh.jakimfett.com'
 
 
 # Project commands
