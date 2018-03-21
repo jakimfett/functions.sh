@@ -33,9 +33,8 @@ if [ "$0" == "$BASH_SOURCE" ];then
     echo "Include this block at the top of your script to allow access to functions:"
     echo
     echo -e '\t########### Include functions ###########'
-    echo -e '\tif [[ `git status 2>&1| head -1 ` == *"fatal"* ]];then curl https://cdn.irregular.team/functions.sh -o ./functions.sh;fi'
+    echo -e '\tif [[ `find functions.sh 2>&1` == *"No such file"* ]];then echo "functions.sh not found, exiting";exit 1;fi'
     echo -e '\tsource "`dirname "$0"`/functions.sh"'
-    echo -e '\tif [ ! "`type -t siteRootCheck`" == "function" ];then echo "Please navigate to the website root folder and try again";exit;fi'
     echo -e '\t########### End include functions #######'
     echo
   }
@@ -203,11 +202,6 @@ if [ -z $CHECKSUDO ];then
   CHECKSUDO=0
 fi
 
-# Check if the CHECKSITEROOT variable is set before setting to default
-if [ -z $CHECKSITEROOT ];then
-  CHECKSITEROOT=1
-fi
-
 # Check if LOGSFOLDER variable is instantiated before setting to default
 if [ -z $LOGSFOLDER ];then
   LOGSFOLDER="./logs"
@@ -215,7 +209,7 @@ fi
 
 # Check if LOGFILE variable is instantiated before setting to default
 if [ -z $LOGFILE ];then
-  LOGFILE="${LOGSFOLDER}/${0}.`date "+%Y-%m-%d_%H%M.%S"`.log"
+  LOGFILE="${LOGSFOLDER}/`basename ${0}`.`date "+%Y-%m-%d_%H%M.%S"`.log"
 fi
 
 # Check if TEMPFOLDER variable is instantiated before setting to zero
@@ -335,26 +329,6 @@ function logHL {
   logThis $logging_level "####################################################"
 }
 
-# Specify that the script must be run from the site root
-function siteRootCheck {
-  ISSITEROOT=$(ls -a|grep .git)
-  ISTOOLSDIR=$(pwd | rev | cut -d"/" -f1 | rev)
-
-  if [[ ! -z $ISSITEROOT ]]; then
-    logThis 7 "Currently in tools root folder..."
-
-  elif [[ $ISTOOLSDIR == "scripts" ]]; then
-    logThis 7 "Currently in scripts folder, changing directory to root..."
-    cd ../
-    siteRootCheck
-
-  else
-    echo $ISTOOLSDIR
-    echo "Please navigate to the scripts folder and try again"
-    exit 1
-  fi
-}
-
 # Create temp folder if it doesn't exist
 function tempFolderCheck {
   if [ ! -d "$TEMPFOLDER" ];then
@@ -371,11 +345,6 @@ function tempFolderCheck {
 
 if [ $EXEC ];then
   logThis 9 "Executing default functions..."
-
-
-  if [ $CHECKSITEROOT -ne 0 ];then
-    siteRootCheck
-  fi
 
   autogenFolderCheck
 
