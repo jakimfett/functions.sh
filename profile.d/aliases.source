@@ -6,7 +6,7 @@
 # Useful aliases for using these functions.
 
 # Always make sure you can fix your problems quickly
-alias reload='source ~/.bash_aliases;source ~/.bash_profile'
+alias reload='source ~/.bash_aliases'
 
 # Project Locations
 alias fsh='cd ~/functions.sh'
@@ -16,15 +16,13 @@ alias cdn='ssh ssh.jakimfett.com'
 
 
 # Project commands
-
-# I wrote this, but don't remember what it actually does.
-# Research before enabling/using.
-# alias svnclean='svn status --no-ignore ./ | grep "^[I?]\" | cut -c 9- | while IFS= read -r f; do rm -rf "$f"; done'
-
+# empty section
 
 # Debian sysadmin alias(es)
 alias update="sudo apt update;sudo apt install -f -y;sudo apt autoremove -y"
 alias upgrade="update;sudo apt dist-upgrade -f -y"
+
+# Quality of Life shortcuts
 alias ll='ls -lah'
 
 # File sync stuffs
