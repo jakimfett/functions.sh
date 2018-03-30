@@ -183,6 +183,11 @@ function cleanup {
 trap cleanup EXIT
 
 # Check if defaults variable is instantiated before setting to one
+if [ -z $BASEDIR ];then
+  BASEDIR=`pwd`
+fi
+
+# Check if defaults variable is instantiated before setting to one
 if [ -z $EXEC ];then
   EXEC=1
 fi
@@ -204,7 +209,7 @@ fi
 
 # Check if LOGSFOLDER variable is instantiated before setting to default
 if [ -z $LOGSFOLDER ];then
-  LOGSFOLDER="./logs"
+  LOGSFOLDER="${BASEDIR}/logs"
 fi
 
 # Check if LOGFILE variable is instantiated before setting to default
@@ -214,12 +219,12 @@ fi
 
 # Check if TEMPFOLDER variable is instantiated before setting to zero
 if [ -z $TEMPFOLDER ];then
-  TEMPFOLDER="./temp"
+  TEMPFOLDER="${BASEDIR}/temp"
 fi
 
 # Check if REPORTFOLDER variable is instantiated before setting to zero
 if [ -z $REPORTFOLDER ];then
-  REPORTFOLDER="./reports"
+  REPORTFOLDER="${BASEDIR}/reports"
 fi
 
 # Check if INTERACTIVE variable is instantiated before setting to zero
@@ -355,6 +360,8 @@ if [ $EXEC ];then
   fi
 
   logThis 9 "Defaults executed."
+
+  logThis 1 "Begin processing"
 
 fi
 
