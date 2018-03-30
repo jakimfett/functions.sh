@@ -174,7 +174,7 @@ fi
 function cleanup {
   wait
 
-  logThis 1 "Done."
+  logThis "Done." 1
 
 #  rm $PIDFILE
 }
@@ -304,34 +304,68 @@ function getUserInputYesNo {
   esac
 }
 
+function enumGetter {
+    # @todo - implement using force-case'd text input?
+    logThis "function 'enumGetter' is not implemented!"
+    exit 1;
+}
+
 # Text output handling for logging
-# Syntax is `logThis LOGLEVEL MESSAGE LOGFILE(optional)`
+# Syntax is `logThis-deprecated_usage_needs_fixed LOGLEVEL MESSAGE LOGFILE(optional)`
+#
+# @changelog:
+# 2018_03_29	19.53.10 (PDT/GMT-0700)
+# re-organized parameter order to make more usage sense
+function logThis-deprecated_usage_needs_fixed {
+    logThis "function usage deprecated"
+    exit 1;
+}
+
+# @logThis.help
+# Text output handling for logging
+#
+# @logThis.syntax:
+# `logThis "Message"`
+# `logThis "Message" <int> <filepath>`
+#
 function logThis {
-  local logging_level=$1
-  local message=$2
+    local message="${1}"
+    local logging_level="${2}"
 
-  local file_name="${LOGFILE}"
-  if [ ! -z $3 ];then
-    file_name="${3}"
-  fi
+    # Failing early helps the program run faster
+    if [ -z "${2}" ] ; then
+        if [ ! -z "${LOGLEVEL}" ] ; then
+            logging_level="${LOGLEVEL}"
+        else
+            # @default.loglevel.hardcoded
+            logging_level=10
+        fi
+    fi
 
-  if [ -z "${logging_level}" ];then
-    logging_level=$LOGLEVEL
-  fi
+    local file_name="${LOGFILE}"
 
-  if [ $logging_level -le $LOGLEVEL ];then
-    echo "`date +%Y-%m-%d_%H:%M.%S:` ${message}" | tee -a $file_name
-  fi
+    if [ ! -z "${3}" ] ; then
+        file_name="${3}"
+    fi
+
+    if [ "${logging_level}" -le "${LOGLEVEL}" ] ; then
+        echo "`date +%Y-%m-%d_%H:%M.%S:` ${message}" | tee -a $file_name
+    fi
+}
+
+# @todo - implement
+function char2Int {
+    echo "implement:# printf -v int '%d\n'  "$1" 2>/dev/null"
 }
 
 # Outputs a horizontal line to the logfile
 # Syntax is logHL LOGLEVEL(optional)
 function logHL {
   local logging_level=2
-  if [ ! -z $1 ];then
+  if [ ! -z "${1}" ];then
     logging_level="${1}"
   fi
-  logThis $logging_level "####################################################"
+  logThis "####################################################" "${logging_level}"
 }
 
 # Create temp folder if it doesn't exist
@@ -349,7 +383,7 @@ function tempFolderCheck {
 # If defaults variable is set to a non-zero value, run these functions by default
 
 if [ $EXEC ];then
-  logThis 9 "Executing default functions..."
+  logThis "Executing default functions..." 9
 
   autogenFolderCheck
 
@@ -359,9 +393,9 @@ if [ $EXEC ];then
     checkSudo
   fi
 
-  logThis 9 "Defaults executed."
+  logThis "Defaults executed." 9
 
-  logThis 1 "Begin processing"
+  logThis "Begin processing" 1
 
 fi
 
