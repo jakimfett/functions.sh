@@ -2,9 +2,9 @@
 # author: @jakimfett
 #
 
-FILENAME=`basename "$0"`
+FILENAME=`basename "${0}"`
 
-alias reload='source $FILENAME'
+alias fsh="source ${FILENAME}"
 
-echo "$FILENAME}";
+echo "${FILENAME}";
 exit
