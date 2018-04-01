@@ -15,9 +15,13 @@ logThis "loaded:'functions.sh'"
 if [ ! -z "${1}" ]; then
 
     TARGETDIR="$1"
+    DUPEDIR="/Users/jakimfett/Downloads/dupes/"
 
     cd $TARGETDIR
     TEMPOUTPUT="${TEMPFOLDER}/`basename ${TARGETDIR}`.index.tmp"
+    touch ${TEMPOUTPUT}.md5sum
+
+
     echo "Temp index will be created at '${TEMPOUTPUT}'"
 
     echo "Directory size:"
@@ -27,12 +31,50 @@ if [ ! -z "${1}" ]; then
 
     find . | sort | uniq > "${TEMPOUTPUT}"
 
-    rm -f ${TEMPOUTPUT}.md5sum
-    touch ${TEMPOUTPUT}.md5sum
+    #if [ ! -f "${TEMPOUTPUT}" ] ; then
+    #    echo "Skipping creation of index, remove '${TEMPOUTPUT}' to regen."
+    #fi
 
-    while read line; do
-        md5 "${line}" >> "${TEMPOUTPUT}.md5sum"
+    # if [ ! -f "${TEMPOUTPUT}.md5sum" ] ; then
+
+
+    # during loops, fail early when possible
+    while read path; do
+        # check if variable is empty
+        if [ ! -z "${path}" ] ; then
+            # check if it's a directory
+            if [ ! -d "${path}" ] ; then
+
+                fileName="`basename ${path}`"
+
+                # expensive processing, but necessary eventually
+                # @todo - refactor to multiprocess this?
+                fileMD5="`md5 -q "${path}"`"
+                echo -n '.'
+
+                # this is a horrible hack but it works (for now)
+                fileSize="`echo $(wc -c <"${path}") | xargs`"
+                # @todo - refactor file size calculation method
+
+
+                dupe="`grep "${fileMD5}" "${path}"`"
+                # file is a duplicate
+                if [ ! -z "${dupe}" ]; then
+                    echo "new file: ${fileMD5} ${path}"
+                    echo "duplicate file: ${dupe}"
+                    # mv '${path}' '${DUPEDIR}'
+                fi
+                echo "${fileMD5} | ${fileSize} | ${path}" >> "${TEMPOUTPUT}.md5sum"
+            fi
+        fi
     done <"${TEMPOUTPUT}"
+
+    #echo "# File list" > ${TEMPOUTPUT}.list
+    #echo "md5\t|\tfilepath" >> ${TEMPOUTPUT}.list
+
+    #threshold=1
+    #cat ${TEMPOUTPUT}.md5sum | awk '{print $2}' | sort | uniq -c | awk -v threshold="$threshold" '$1 > threshold' > ${TEMPOUTPUT}.counts
+
 
     echo "file indexing done"
 else
