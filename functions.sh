@@ -219,7 +219,7 @@ fi
 
 # Check if TEMPFOLDER variable is instantiated before setting to zero
 if [ -z $TEMPFOLDER ];then
-  TEMPFOLDER="${BASEDIR}/temp"
+  TEMPFOLDER="${BASEDIR}/tmp"
 fi
 
 # Check if REPORTFOLDER variable is instantiated before setting to zero
@@ -268,6 +268,8 @@ function checkSudo {
 }
 
 # Get user input
+# @todo - generalize this and fix clunkyness of command/messaging variables.
+#
 # Syntax is `getUserInputYesNo MESSAGE COMMAND_ON_YES MESSAGE_ON_YES COMMAND_ON_NO MESSAGE_ON_NO`
 function getUserInputYesNo {
   MESSAGE="$1 [y/N]: "
