@@ -1,3 +1,11 @@
+#!/bin/bash
+# @author:'jakimfett'
+# @license;'cc-by-sa'
+#
+# A jumble of things meant to configure, set up, and otherwise assemble the functions.sh framework.
+
+
+# https://help.github.com/articles/signing-commits-using-gpg/
 git config commit.gpgsign true
 
 
