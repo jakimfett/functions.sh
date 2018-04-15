@@ -4,8 +4,17 @@
 #
 # Automate microsite publication and caching.
 
+outPut='microsite';
 
-cd microsite
+# rm -rf ./microsite
+# mkdir -p microsite
+# git submodule add -b gh-pages git@github.com:jakimfett/functions.sh microsite
+# git submodule update --init
+# git submodule update --remote
+
+if [ -d "${outPut}" ]; then
+	cd "${outPut}"
+fi
 
 # These options wipe out the branch each time.
 # git rm -r --cached .

@@ -9,9 +9,6 @@
 git config commit.gpgsign true
 
 
-git submodule add -b gh-pages git@github.com:jakimfett/functions.sh microsite
-git submodule update --init
-git submodule update --remote
 mkdir -p microsite;cd microsite;git config user.email script@user.system.tld
 git config user.name autogen
 wget http://functions.sh -O functions.sh.online
