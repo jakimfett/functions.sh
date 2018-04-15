@@ -5,6 +5,7 @@
 # Automate microsite publication and caching.
 
 
+cd microsite
 git branch -D gh-pages
 git checkout --orphan gh-pages
 git show development:functions.sh > index.html
