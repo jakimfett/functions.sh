@@ -3,3 +3,5 @@ git submodule update --init
 git submodule update --remote
 mkdir -p microsite;cd microsite;git config user.email script@user.system.tld
 git config user.name autogen
+wget http://functions.sh -O functions.sh.online
+diff functions.sh.online functions.sh
