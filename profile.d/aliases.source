@@ -6,7 +6,10 @@
 # Useful aliases for using these functions.
 
 # Always make sure you can fix your problems quickly
-alias reload='source ~/.bash_aliases'
+alias reload='echo "reloading bash aliases...";source ~/.bash_aliases;echo "aliases reloaded"'
+
+# QoL Stuffs
+alias nano="nano -w"
 
 # Project Locations
 alias fsh='cd ~/functions.sh'
@@ -15,8 +18,20 @@ alias fsh='cd ~/functions.sh'
 alias cdn='ssh ssh.jakimfett.com'
 
 
+# Virtualbox QOL improvements
+alias vbm="VBoxManage"
+
+
 # Project commands
-# empty section
+alias fdebug="vbm startvm 'fsh' --type separate"
+alias fup="vbm startvm 'fsh' --type headless"
+alias fres="vbm controlvm 'fsh' resume"
+alias ful="vbm controlvm 'fsh' addencpassword 'Debian 9.4' ~/Documents/install.functions.sh/encryption.key"
+alias fsd="vbm controlvm 'fsh' acpipowerbutton"
+alias fkill="vbm controlvm 'fsh' poweroff"
+alias fsave="vbm controlvm 'fsh' savestate"
+alias fclean="vbm controlvm 'fsh' removeallencpasswords"
+
 
 # Debian sysadmin alias(es)
 alias update="sudo apt update;sudo apt install -f -y;sudo apt autoremove -y"
