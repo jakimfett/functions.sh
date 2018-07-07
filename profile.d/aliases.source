@@ -24,13 +24,15 @@ alias vbm="VBoxManage"
 
 # Project commands
 alias fdebug="vbm startvm 'fsh' --type separate"
-alias fup="vbm startvm 'fsh' --type headless"
-alias fres="vbm controlvm 'fsh' resume"
+alias fclean="vbm controlvm 'fsh' removeallencpasswords"
 alias ful="vbm controlvm 'fsh' addencpassword 'Debian 9.4' ~/Documents/install.functions.sh/encryption.key"
+alias fres="vbm controlvm 'fsh' resume"
+
+alias fup="fclean;vbm startvm 'fsh' --type headless; sleep 3; ful"
+
 alias fsd="vbm controlvm 'fsh' acpipowerbutton"
 alias fkill="vbm controlvm 'fsh' poweroff"
 alias fsave="vbm controlvm 'fsh' savestate"
-alias fclean="vbm controlvm 'fsh' removeallencpasswords"
 
 
 # Debian sysadmin alias(es)
