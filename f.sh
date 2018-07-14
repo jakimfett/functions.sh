@@ -36,6 +36,10 @@ shortParams[0]="${commandChar}" # <-- first level recursion, note that a bare hy
 
 # ^-- sorted, ish
 # unsorted --v
+
+
+# slurp up the short params
+# short params are a command character followed by a single character, followed by a break character
 function processShortParams {
 	local inputParamString="${@}"
 	local sanizedParam[0]="${inputParamString:0:1}"
