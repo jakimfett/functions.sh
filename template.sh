@@ -1,6 +1,6 @@
 #!/bin/bash
 # @author:'jakimfett'
-# @license;'cc-by-na'
+# @license;'cc-by-sa'
 #
 # Meta script that tries to write itself, and sometimes the universe.
 

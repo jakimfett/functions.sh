@@ -1,5 +1,5 @@
 # Prepend functions.sh/
-PATH="~/functions.sh/:${PATH}"
+PATH="/home/$USER/functions.sh:${PATH}"
 
 # Fix python version
 PATH="/usr/local/Frameworks/Python.framework/Versions/3.6/bin/:${PATH}"

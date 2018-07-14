@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # author: @jakimfett
-# license: cc-by-na
+# license: cc-by-sa
 #
 # usage: index.sh <folder>
 # Creates a sorted, cleaned index of files in a given directory.

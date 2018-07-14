@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # author: @jakimfett
-# license: cc-by-na
+# license: cc-by-sa
 #
 # Common functions and utilities for Debian Linux shell scripts
 

@@ -1,0 +1,4 @@
+[submodule "microsite"]
+	path = microsite
+	url = git@github.com:jakimfett/functions.sh
+	branch = gh-pages
