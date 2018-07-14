@@ -15,18 +15,31 @@ FILENAME=`echo ${0##*/} | cut -d'.' -f1`
 # Set the command character.
 commandChar='-'
 
+# Enable shortcommand
+enabledCommands[0]='h' # display the help
+enabledCommands[1]='r' # recursive
+
 # Create the parameter array.
 shortParams[0]="${commandChar}"
 
 function processShortParams {
-    local inputParamString="${@}"
+	local inputParamString="${@}"
+	local sanizedParam[0]="${inputParamString:0:1}"
 
-    # @todo - check different methods of iterating for speed
-    # Start at position one, as position zero has the command character.
-    for (( i=1; i<${#inputParamString}; i++ )); do
-        echo "${inputParamString:$i:1}"
-    done
+	# @todo - check different methods of iterating for speed
+	# Start at position one, as position zero has the command character.
+	for (( i=1; i<${#inputParamString}; i++ )); do
+		if [[ "${enabledCommands[@]}" =~ "${inputParamString:$i:1}" ]]; then
+			sanizedParam[$i]="${inputParamString:$i:1}"
+			echo "'${sanizedParam[$i]}' is a valid command parameter!"
 
+		else
+			echo "command parameter '${inputParamString:$i:1}' is invalid"
+
+		fi
+	done
+
+	echo ${sanizedParam[@]}
 }
 
 function processLongParams {
