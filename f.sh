@@ -35,6 +35,11 @@ shortParams[0]="${commandChar}" # <-- first level recursion, note that a bare hy
 
 
 # ^-- sorted, ish
+
+# housekeeping and conventions
+# NAME variable is used for log file and screen instance naming
+NAME="francis" # <-- uppercase variable name is significant, will explain later
+
 # unsorted --v
 
 
