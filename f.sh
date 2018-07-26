@@ -41,6 +41,7 @@ shortParams[0]="${commandChar}" # <-- first level recursion, note that a bare hy
 # slurp up the short params
 # short params are a command character followed by a single character, followed by a break character
 function processShortParams {
+	if [ "${@}"  ]; then echo "short parameter detected"; else exit 1; fi
 	local inputParamString="${@}"
 	local sanizedParam[0]="${inputParamString:0:1}"
 
