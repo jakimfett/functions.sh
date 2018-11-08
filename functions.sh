@@ -138,13 +138,28 @@ done
 
 ########### Sanity Checks ###########
 
-# Refuse to run if user is root - can cause issues with chown
-if [ $USER == "root" ];then
-  echo "This script should not be run as root or via sudo!"
-  echo "Please re-run as an unprivileged user."
-  echo "Script will now exit."
-  exit 1
-fi
+
+# folder manipulation syntax
+# { }    == operator chars, open and close
+# ..    == iterate from..to, eg {a..f} or {1...13}
+# ,    == divides characters in a set or list, eg {a,31,d,f,7} or {1..7,18,3..10,j}
+#
+# a)    mkdir sa{1..50}
+# b)    mkdir -p sa{1..50}/sax{1..50}
+# c)    mkdir {a-z}12345
+# d)    mkdir {1,2,3}
+# e)    mkdir test{01..10}
+# f)    mkdir -p `date '+%y%m%d'`/{1,2,3}
+# g)    mkdir -p $USER/{1,2,3}
+
+# a)   50 directories from sa1 through sa50
+# b)   same but each of the directories will hold 50 times sax1 through sax50 (-p will create parent directories if they do not exist.
+# c)        26 directories from a12345 through z12345
+# d)        comma separated list makes dirs 1, 2 and 3.
+# e)        10 directories from test01 through test10.
+# f)        same as 4 but with the current date as a directory and 1,2,3 in it.
+# g)        same as 4 but with the current user as a directory and 1,2,3 in it.
+
 
 # Check for process ID file
 # @TODO - refactor PID logging.
@@ -316,7 +331,7 @@ function enumGetter {
 # Syntax is `logThis-deprecated_usage_needs_fixed LOGLEVEL MESSAGE LOGFILE(optional)`
 #
 # @changelog:
-# 2018_03_29	19.53.10 (PDT/GMT-0700)
+# 2018_03_29    19.53.10 (PDT/GMT-0700)
 # re-organized parameter order to make more usage sense
 function logThis-deprecated_usage_needs_fixed {
     logThis "function usage deprecated"

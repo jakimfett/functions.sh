@@ -6,3 +6,6 @@ logs
 logs/*
 tmp
 tmp/*
+
+# OSX cleanup
+.DS_Store
