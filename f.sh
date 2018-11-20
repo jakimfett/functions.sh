@@ -12,7 +12,7 @@
 # this is a *very* dangerous tool
 # educating yourself mitigates the (karmic) stupid tax
 # remove the following line(s) from execution to violate (some|all) warrenties
-exit 1
+#exit 1
 ###
 
 
@@ -29,9 +29,9 @@ enabledCommands[1]='u' # update
 # this order probably matters, but we won't actually know until we get ethical analytics set up
 
 
-
 # Create the parameter array.
-shortParams[0]="${commandChar}" # <-- first level recursion, note that a bare hyphan (the current command char, '-') should return the help printout
+declare -a shortParams
+
 
 
 # ^-- sorted, ish
@@ -40,32 +40,36 @@ shortParams[0]="${commandChar}" # <-- first level recursion, note that a bare hy
 # NAME variable is used for log file and screen instance naming
 NAME="francis" # <-- uppercase variable name is significant, will explain later
 
-# unsorted --v
 
 
-# slurp up the short params
-# short params are a command character followed by a single character, followed by a break character
+
+# sanatize and process short params
+# short params are a single command character followed by one or more character(s)
+# intended as shorthand and ease-of-prototyping flags
 function processShortParams {
-	if [ "${@}"  ]; then echo "short parameter detected"; else exit 1; fi
-	local inputParamString="${@}"
-	local sanizedParam[0]="${inputParamString:0:1}"
+	# fail early if there's nothing passed to the function
+	if [ "${@}" ]; then
 
-	# @todo - check different methods of iterating for speed
-	# Start at position one, as position zero has the command character.
-	for (( i=1; i<${#inputParamString}; i++ )); do
-		if [[ "${enabledCommands[@]}" =~ "${inputParamString:$i:1}" ]]; then
-			sanizedParam[$i]="${inputParamString:$i:1}"
-			echo "'${sanizedParam[$i]}' is a valid command parameter!"
+		# Local variable for manipulating/using input
+		local inputParamString="${@}"
 
-		else
-			echo "command parameter '${inputParamString:$i:1}' is invalid"
+		for (( i=0; i<${#inputParamString}; i++ )); do
+			# ignore the command character
+			if [[ "${commandChar}" =~ "${inputParamString:$i:1}" ]]; then
+				continue
+			fi
 
-		fi
-	done
+			if [[ "${enabledCommands[@]}" =~ "${inputParamString:$i:1}" ]]; then
+				shortParams[${#shortParams[@]}]="${inputParamString:$i:1}"
 
-	echo ${sanizedParam[@]}
+			fi
+		done
+	fi
+
 }
 
+
+## unsorted --v
 function processLongParams {
 	local inputParamString="${@}"
 	echo "not implemented"
@@ -79,11 +83,11 @@ function userInput {
 
 for flag in "${@}"; do
 	case "${flag}" in
-		# parse any short flags first
+		# parse any short flags (single command char)
 		${commandChar}[a-zA-Z0-9_]*)
 			processShortParams "${flag}"
 		;;
-		# parse any short flags first
+		# parse long params (double command char)
 		${commandChar}${commandChar}[a-zA-Z0-9_]*)
 		  processLongParams "${flag}"
 		;;
@@ -95,8 +99,12 @@ for flag in "${@}"; do
 	esac
 done
 
+if [ "${#shortParams}" == 0 ]; then
+	shortParams[${#shortParams}]="${enabledCommands[0]}"
+fi
 
-echo
+
+echo ${shortParams[@]}
 
 
 
