@@ -60,10 +60,9 @@ function processShortParams {
 			if [[ "${commandChar}" =~ "${inputParamString:$i:1}" ]]; then
 				continue
 			fi
-			# Add the character in question to the parameters list if it is enabled
+			# Add the character in question to the parameters list if it is part of the enabledCommands array
 			if [[ "${enabledCommands[${inputParamString:$i:1}]}" ]]; then
-				echo "${inputParamString:$i:1}"
-				saneParam[${#saneParam[@]}]="${inputParamString:$i:1}"
+				saneParam[${#saneParam[@]}]="${enabledCommands[${inputParamString:$i:1}]}"
 			fi
 		done
 	fi
@@ -73,8 +72,18 @@ function processShortParams {
 
 ## unsorted --v
 function processLongParams {
-	local inputParamString="${@}"
-	echo "not implemented"
+	# fail early if there's nothing passed to the function
+	if [ "${@}" ]; then
+
+		# Local variable for manipulating/using input
+		local inputParamString="${@}"
+
+		# Remove the command sequence from the string
+		if [ "${commandChar}${commandChar}" == "${inputParamString:0:2}" ]; then
+			saneParam[${#saneParam[@]}]="${inputParamString:2:${#inputParamString}}"
+		fi
+
+	fi
 }
 
 function userInput {
@@ -91,7 +100,7 @@ for flag in "${@}"; do
 		;;
 		# parse long params (double command char)
 		${commandChar}${commandChar}[a-zA-Z0-9_]*)
-		  processLongParams "${flag}"
+			processLongParams "${flag}"
 		;;
 
 		*)
