@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 # @author: @jakimfett
 # @description: minimalism, sorta
 # @goal: satisfy mel's curiousity
@@ -23,14 +23,15 @@ echo "Hold on, here we go..."
 # Set the command character.
 commandChar='-'
 
-# Enable shortcommand
-enabledCommands[0]='h' # display the help
-enabledCommands[1]='u' # update
+# Commands, short and long
+declare -A enabledCommands
+enabledCommands['h']='help' # display the help
+enabledCommands['u']='update' # update
 # this order probably matters, but we won't actually know until we get ethical analytics set up
 
 
 # Create the parameter array.
-declare -a shortParams
+declare -a saneParam
 
 
 
@@ -43,7 +44,7 @@ NAME="francis" # <-- uppercase variable name is significant, will explain later
 
 
 
-# sanatize and process short params
+# sanitize and process short params
 # short params are a single command character followed by one or more character(s)
 # intended as shorthand and ease-of-prototyping flags
 function processShortParams {
@@ -53,15 +54,16 @@ function processShortParams {
 		# Local variable for manipulating/using input
 		local inputParamString="${@}"
 
+		# Iterate through the length of the command string
 		for (( i=0; i<${#inputParamString}; i++ )); do
 			# ignore the command character
 			if [[ "${commandChar}" =~ "${inputParamString:$i:1}" ]]; then
 				continue
 			fi
-
-			if [[ "${enabledCommands[@]}" =~ "${inputParamString:$i:1}" ]]; then
-				shortParams[${#shortParams[@]}]="${inputParamString:$i:1}"
-
+			# Add the character in question to the parameters list if it is enabled
+			if [[ "${enabledCommands[${inputParamString:$i:1}]}" ]]; then
+				echo "${inputParamString:$i:1}"
+				saneParam[${#saneParam[@]}]="${inputParamString:$i:1}"
 			fi
 		done
 	fi
@@ -99,71 +101,10 @@ for flag in "${@}"; do
 	esac
 done
 
-if [ "${#shortParams}" == 0 ]; then
-	shortParams[${#shortParams}]="${enabledCommands[0]}"
+# if no parameters have been passed, display the help
+if [ "${#saneParam}" == 0 ]; then
+	saneParam[${#saneParam}]="${enabledCommands[0]}"
 fi
 
 
-echo ${shortParams[@]}
-
-
-
-exit 1;
-
-
-SOURCE="https://raw.githubusercontent.com/jakimfett/functions.sh/development/functions.sh"
-
-# get filename without extension(s), this needs work
-CUTNAME=`echo ${0##*/} | cut -d'.' -f1`
-echo "Current file executing: ${CUTNAME}"
-
-
-# name of current file
-FNAME=`basename "${0}"`
-echo "Extensions: ${FNAME}"
-
-# location of current environment
-LOCAL="`pwd`/"
-echo "Current working directory: ${LOCAL}"
-
-# location of temporary filestash
-TMP="${LOCAL}tmp/"
-
-function installVerify {
-	mkdir -p ${TMP}
-
-	if [ ! -f ${TMP}functions.sh.net ]; then
-		curl ${SOURCE} > ${TMP}functions.sh.net
-		openssl sha512 ${TMP}functions.sh.net > ${TMP}functions.sha.512.sum
-	fi
-
-	if [ ! -f ${LOCAL}functions.sha.512.sum ]; then
-		openssl sha512 ${LOCAL}functions.sha.512.sum > ${LOCAL}functions.sha.512.sum
-	fi
-
-	if [ "`diff ${TMP}functions.sha.512.sum ${LOCAL}functions.sha.512.sum`" ];then
-		echo shasums differ:
-		echo remote sum: `cat ${TMP}functions.sha.512.sum`
-		echo local sum: `cat ${LOCAL}functions.sha.512.sum`
-	else
-		echo sums identical
-	fi
-}
-installVerify
-
-function garbageCollect {
-	rm ${TMP}/*
-}
-#garbageCollect
-exit 1
-########### Include functions ###########
-if [[ `find functions.sh 2>&1` == *"No such file"* ]];then exit 1;fi
-#clear; source "`dirname "$0"`/functions.sh"; when.sh;echo; logThis "loaded:'functions.sh'"
-########### End include functions #######
-
-#alias reload="source ${FILENAME}"
-
-#echo "${FILENAME}";
-
-
-exit 1
+echo ${saneParam[@]}
