@@ -24,23 +24,23 @@ echo "Hold on, here we go..."
 commandChar='-'
 
 # Commands, short and long
-declare -A enabledCommands
-enabledCommands['h']='help' # display the help
-enabledCommands['u']='update' # update
-# this order probably matters, but we won't actually know until we get ethical analytics set up
+declare -A enabledCommands commandDescript
+
+enabledCommands['h']="help" # display the help
+commandDescript["${enabledCommands['h']}"]="Displays usage/command info for the script."
+
+enabledCommands['i']="install" # update the script
+commandDescript["${enabledCommands['i']}"]="Installs functions.sh to the local system."
+
+enabledCommands['p']="purge" # update the script
+commandDescript["${enabledCommands['p']}"]="Remove all traces of functions.sh from the local system."
 
 
-# Create the parameter array.
+# Sanitized parameter array.
 declare -a saneParam
 
-
-
-# ^-- sorted, ish
-
-# housekeeping and conventions
-# NAME variable is used for log file and screen instance naming
-NAME="francis" # <-- uppercase variable name is significant, will explain later
-
+# Keep track of completeds
+declare -A doneList
 
 
 
@@ -70,7 +70,6 @@ function processShortParams {
 }
 
 
-## unsorted --v
 function processLongParams {
 	# fail early if there's nothing passed to the function
 	if [ "${@}" ]; then
@@ -86,10 +85,37 @@ function processLongParams {
 	fi
 }
 
+
+# Display script usage information and flags.
+function usageHelp {
+	doneList['help']="task begin: `./when.sh`"
+	echo
+    echo "Commands available in f.sh:"
+	echo -e "  <empty>|--help|-h \t ${commandDescript["help"]}"
+	echo -e "  --install|-i \t\t ${commandDescript["install"]}"
+	echo -e "  --purge|-p \t\t ${commandDescript["purge"]}"
+    echo
+	# @todo - calculate run time?
+	doneList['help']="${doneList['help']}, task complete: `./when.sh`"
+}
+
+# Decision input from the user
 function userInput {
-	# @todo - implement
-	# http://wiki.bash-hackers.org/commands/builtin/read
-	echo "Not implemented."
+	read -p "execute the previous command(s)? (y/n/?): " rawInput
+	case "${rawInput}" in
+		[yY])
+			echo `./when.sh`
+		;;
+		[nN])
+			echo "program will now exit"
+			exit 1
+		;;
+		*)
+			echo "input '${rawInput}' not recognized, program will exit."
+			echo
+			exit 1
+		;;
+	esac
 }
 
 for flag in "${@}"; do
@@ -97,10 +123,13 @@ for flag in "${@}"; do
 		# parse any short flags (single command char)
 		${commandChar}[a-zA-Z0-9_]*)
 			processShortParams "${flag}"
+			#echo "shortParam"
 		;;
 		# parse long params (double command char)
 		${commandChar}${commandChar}[a-zA-Z0-9_]*)
 			processLongParams "${flag}"
+			echo
+			#echo "longParam"
 		;;
 
 		*)
@@ -110,10 +139,10 @@ for flag in "${@}"; do
 	esac
 done
 
+## unsorted --v
+
 # if no parameters have been passed, display the help
 if [ "${#saneParam}" == 0 ]; then
-	saneParam[${#saneParam}]="${enabledCommands[0]}"
+	usageHelp
+	exit 0
 fi
-
-
-echo ${saneParam[@]}
