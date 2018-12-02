@@ -33,7 +33,7 @@ if [ "$0" == "$BASH_SOURCE" ];then
     echo "Include this block at the top of your script to allow access to functions:"
     echo
     echo -e '\t########### Include functions ###########'
-    echo -e '\tif [[ `find functions.sh 2>&1` == *"No such file"* ]];then echo "functions.sh not found, exiting";exit 1;fi'
+    echo -e '\tif [[ `find ~/ -type f -iname "functions.sh" 2>&1` == *"No such file"* ]];then echo "functions.sh not found, exiting";exit 1;fi'
     echo -e '\tsource "`dirname "$0"`/functions.sh"'
     echo -e '\t########### End include functions #######'
     echo
