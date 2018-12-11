@@ -154,15 +154,21 @@ else
 			# all we need is the exit code, so any output is sent to /dev/null
 			git ls-remote --exit-code -h "${config['repo']}" > /dev/null 2>&1
 
-			if [ "$?" = 0 ];then
+			if [ "$?" == 0 ];then
 				echo "#=-                                               -=#"
 				echo "#=- Remote repo exists, attempting to clone...    -=#"
 
 				# double check that we're in the installation directory
-				if [ "$(pwd)/" = "${config['installTo']}" ];then
-					echo git clone --single-branch -b "${config['branch']}" "${config['repo']}" .
-					echo "#=-                                               -=#"
-					echo "#=- initialized git repository...                 -=#"
+				if [ "$(pwd)/" == "${config['installTo']}" ];then
+					git clone --single-branch -b "${config['branch']}" "${config['repo']}" .
+					if [ "$?" == 0 ];then
+						echo "#=-                                               -=#"
+						echo "#=- initialized git repository...                 -=#"
+					else
+
+						echo "#=-                                               -=#"
+						echo "#=-                 failmuffins                   -=#"
+					fi
 				fi
 			else
 				echo "#=-                                               -=#"
