@@ -10,7 +10,7 @@ alias eba='nano ~/.bash_aliases'
 alias gg='sudo su --login'
 alias ll='ls -lah'
 alias search='lynx https://start.duckduckgo.com'
-
+alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
 
 
 
@@ -26,6 +26,9 @@ alias fsh='cd ~/functions.sh'
 # Project SSH Aliases
 alias cdn='ssh ssh.jakimfett.com'
 
+
+# File system mounting
+alias bfmount="sshfs badfruit.local:/home/jakimfett /media/jakimfett/badfruit"
 
 # Virtualbox QOL improvements
 alias vbm="VBoxManage"
