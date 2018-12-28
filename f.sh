@@ -14,9 +14,9 @@
 # remove the following line(s) from execution to violate (some|all) warrenties
 #exit 1
 ###
-
+# hey
 # --- # --- # --- # --- #
-# life looks a lot like code.
+# submolecular life looks a lot like code.
 # --- # --- # --- # --- # --- # --- # --- #
 # huh. that's odd.
 # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
@@ -40,11 +40,22 @@ config['branch']="development"
 
 # state variables
 declare -A stateVar
+
+# zero is a decent stand-in for a boolean false, right?
 stateVar['depsPresent']=0
 stateVar['emptyDir']=0
 stateVar['gitRemote']=0
 stateVar['isGit']=0
 stateVar['doInstall']=0
+
+# determine if the user can sudo
+sudoer=$(sudo -n -v 2>&1)
+if [[ "${sudoer}" == *"password is required"* ]];then
+	stateVar['sudoer']=1
+else
+	stateVar['sudoer']=0
+fi
+
 # done with state variables
 
 # exit code definitions
@@ -52,12 +63,13 @@ declare -A exits
 exits['done']=0
 exits['general']=1
 exits['dependency']=2
+exits['permissions']=3
 # done with exit codes
 
 
 
 # prerequisites
-declare depList=('git' 'ssh')
+declare depList=('git' 'ssh' 'rsync' )
 declare -A missingDep
 # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
 # mmmm...poetry.
