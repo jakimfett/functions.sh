@@ -1,0 +1,55 @@
+# source this file from your .bash_profile
+#
+# author: @jakimfett
+# license: cc-by-na
+#
+# Useful aliases for using these functions.
+
+# Quality of Life shortcuts
+alias eba='nano ~/.bash_aliases'
+alias gg='sudo su --login'
+alias ll='ls -lah'
+alias search='lynx https://start.duckduckgo.com'
+alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
+
+
+
+# Always make sure you can fix your problems quickly
+alias reload='echo "reloading bash aliases...";source ~/.bash_aliases;echo "aliases reloaded"'
+
+# QoL Stuffs
+alias nano="nano -w"
+
+# Project Locations
+alias fsh='cd ~/functions.sh'
+
+# Project SSH Aliases
+alias cdn='ssh ssh.jakimfett.com'
+
+
+# File system mounting
+alias bfmount="sshfs badfruit.local:/home/jakimfett /media/jakimfett/badfruit"
+
+# Virtualbox QOL improvements
+alias vbm="VBoxManage"
+
+
+# Project commands
+alias fdebug="vbm startvm 'fsh' --type separate"
+alias fclean="vbm controlvm 'fsh' removeallencpasswords"
+alias ful="vbm controlvm 'fsh' addencpassword 'Debian 9.4' ~/Documents/install.functions.sh/encryption.key"
+alias fres="vbm controlvm 'fsh' resume"
+
+alias fup="fclean;vbm startvm 'fsh' --type headless; sleep 3; ful"
+
+alias fsd="vbm controlvm 'fsh' acpipowerbutton"
+alias fkill="vbm controlvm 'fsh' poweroff"
+alias fsave="vbm controlvm 'fsh' savestate"
+
+
+# Debian sysadmin alias(es)
+alias update="sudo apt update;sudo apt install -f -y;sudo apt autoremove -y"
+alias upgrade="update;sudo apt dist-upgrade -f -y"
+
+# File sync stuffs
+alias syncfiles='rsync -rvhcO --progress'

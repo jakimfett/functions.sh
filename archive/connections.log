@@ -1,0 +1,17 @@
+--2018-07-14 09:56:01--  http://functions.sh/
+Resolving functions.sh (functions.sh)... 192.30.252.153, 192.30.252.154
+Connecting to functions.sh (functions.sh)|192.30.252.153|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 10408 (10K) [text/html]
+Saving to: ‘index.html’
+
+     0K ..........                                            100% 19.0M=0.001s
+
+2018-07-14 09:56:02 (19.0 MB/s) - ‘index.html’ saved [10408/10408]
+
+--2018-07-14 09:56:02--  http://sha512/
+Resolving sha512 (sha512)... failed: nodename nor servname provided, or not known.
+wget: unable to resolve host address ‘sha512’
+FINISHED --2018-07-14 09:56:02--
+Total wall clock time: 0.9s
+Downloaded: 1 files, 10K in 0.001s (19.0 MB/s)

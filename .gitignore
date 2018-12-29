@@ -9,3 +9,5 @@ tmp/*
 
 # Ignore configuration file(s)
 *.config
+# OSX cleanup
+.DS_Store
