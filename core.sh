@@ -33,7 +33,7 @@ if [ "$0" == "$BASH_SOURCE" ];then
     echo "Include this block at the top of your script to allow access to functions:"
     echo
     echo -e '\t########### Include functions ###########'
-    echo -e '\tif [[ `find functions.sh 2>&1` == *"No such file"* ]];then echo "functions.sh not found, exiting";exit 1;fi'
+    echo -e '\tif [[ `find ~/ -type f -iname "functions.sh" 2>&1` == *"No such file"* ]];then echo "functions.sh not found, exiting";exit 1;fi'
     echo -e '\tsource "`dirname "$0"`/functions.sh"'
     echo -e '\t########### End include functions #######'
     echo
@@ -138,13 +138,7 @@ done
 
 ########### Sanity Checks ###########
 
-# Refuse to run if user is root - can cause issues with chown
-if [ $USER == "root" ];then
-  echo "This script should not be run as root or via sudo!"
-  echo "Please re-run as an unprivileged user."
-  echo "Script will now exit."
-  exit 1
-fi
+
 
 # Check for process ID file
 # @TODO - refactor PID logging.
@@ -316,7 +310,7 @@ function enumGetter {
 # Syntax is `logThis-deprecated_usage_needs_fixed LOGLEVEL MESSAGE LOGFILE(optional)`
 #
 # @changelog:
-# 2018_03_29	19.53.10 (PDT/GMT-0700)
+# 2018_03_29    19.53.10 (PDT/GMT-0700)
 # re-organized parameter order to make more usage sense
 function logThis-deprecated_usage_needs_fixed {
     logThis "function usage deprecated"
