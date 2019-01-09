@@ -11,7 +11,7 @@ alias gg='sudo su --login'
 alias ll='ls -lah'
 alias search='lynx https://start.duckduckgo.com'
 alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
-
+alias upgrade='sudo apt update;sudo apt install --fix-broken;sudo apt install --fix-missing;sudo apt dist-upgrade -y;sudo apt autoremove'
 
 
 # Always make sure you can fix your problems quickly
