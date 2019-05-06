@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+# !/bin/bash
 # @author: @jakimfett
 # @description: minimalism, sorta
 # @goal: satisfy mel's curiousity
@@ -64,6 +64,8 @@ exits['done']=0
 exits['general']=1
 exits['dependency']=2
 exits['permissions']=3
+exits['debug']=4
+exits['failmuffins']=5
 # done with exit codes
 
 
@@ -126,6 +128,10 @@ if [ -d "${config['installTo']}" ];then
 
 fi
 
+echo
+echo
+echo exiting
+exit 5
 
 # clear
 echo "#=-              welcome to f.sh                  -=#"
