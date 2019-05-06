@@ -8,15 +8,16 @@
 # Write for the human, not for the computer.
 #
 
+# Always make sure you can fix your problems quickly
+alias reload='echo "reloading bash aliases...";source ~/.bash_aliases;echo "aliases reloaded"'
+
 # Quality of Life shortcuts
 alias eba='nano ~/.bash_aliases'
 alias gg='sudo su --login'
 alias ll='ls -lah'
 alias search='lynx https://start.duckduckgo.com'
+alias sd='shutdown -hP now'
 alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
-
-# Always make sure you can fix your problems quickly
-alias reload='echo "reloading bash aliases...";source ~/.bash_aliases;echo "aliases reloaded"'
 
 # QoL Stuffs
 alias nano="nano -w"
@@ -50,7 +51,7 @@ alias fsave="vbm controlvm 'fsh' savestate"
 
 # Debian sysadmin alias(es)
 alias update="sudo apt update; sudo apt install -f -y; sudo apt autoremove -y"
-alias upgrade="update; sudo apt dist-upgrade -y --force-yes;"
+alias upgrade="update; sudo apt dist-upgrade -y;"
 alias uprepair='update; sudo apt install --fix-broken; sudo apt install --fix-missing;'
 alias shutgrade='upgrade; sudo shutdown -hP now'
 

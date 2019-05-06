@@ -7,7 +7,16 @@
 #
 # All modifications from the source licensed as above, as the prophesy foretold.
 
+workingDir=`pwd`
+echo ${workingDir}
+
+targetDir=${1}
+echo ${targetDir}
 echo "Only remove me if you know what you're doing, hotshot."; exit 13;
+
+
+
+
 
 THUMBS_FOLDER=/home/image/thumb
 for file in /home/image/*
