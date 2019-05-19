@@ -12,6 +12,7 @@
 alias reload='echo "reloading bash aliases...";source ~/.bash_aliases;echo "aliases reloaded"'
 
 # Quality of Life shortcuts
+alias nano="nano -w"
 alias eba='nano ~/.bash_aliases'
 alias gg='sudo su --login'
 alias ll='ls -lah'
@@ -19,8 +20,8 @@ alias search='lynx https://start.duckduckgo.com'
 alias sd='shutdown -hP now'
 alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
 
-# QoL Stuffs
-alias nano="nano -w"
+# Window Manager
+alias twm='dtach -A ~/session/default -r winch dvtm'
 
 # Project Locations
 alias fsh='cd ~/f.sh'
