@@ -58,3 +58,54 @@ alias shutgrade='upgrade; sudo shutdown -hP now'
 
 # File sync stuffs
 alias syncfiles='rsync -rvhcO --progress'
+
+
+# This one goes out to Nune,
+# wherever she may be.
+
+# Share commands with sibling shells
+export HISTSIZE=
+export HISTFILESIZE=
+shopt -s histappend
+shopt -s expand_aliases
+export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
+
+# Keep the frequent tools close at hand
+alias rba='source ~/.aliases'
+alias eba='nano ~/.aliases'
+alias rbt='( sleep 5 ; reboot ) & logout'
+
+# Always know *when* you are.
+alias chronoStamp='date "+(%:::z, %Z) %Y.%m.%d.%R.%S:"'
+
+# Keep an eye on what's in your ports.
+alias usbScan='chronoStamp && lsusb && echo'
+
+# Know how you connect to the world outside your network ports.
+alias getPublicAddress='curl icanhazip.com'
+
+# Do more than one thing at once.
+alias twm='dtach -A ~/session/default -r winch dvtm'
+
+# Fix mosh, because.
+export PATH=/usr/local/bin:$PATH
+
+# Note: PS1 and umask are already set in /etc/profile. You should not
+# need this unless you want different defaults for root.
+# PS1='${debian_chroot:+($debian_chroot)}\h:\w\$ '
+# umask 022
+
+# You may uncomment the following lines if you want `ls' to be colorized:
+export LS_OPTIONS='--color=auto'
+eval "`dircolors`"
+alias ls='ls $LS_OPTIONS'
+alias ll='ls $LS_OPTIONS -l'
+alias l='ls $LS_OPTIONS -lA'
+
+# Some more alias to avoid making mistakes:
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# figuring out what is installed manually
+alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
