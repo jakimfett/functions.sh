@@ -118,31 +118,43 @@ Before we start downloading, let's check how big this thing is:
 `curl -I "${image_url}" | grep -i 'content-length' | awk '{print $2}'`
 
 > What this does:  
-> # Gets the response header from variable `image-url`.  
-> # Filters for lines containing the string "[Cc][Oo][Nn][Tt][Ee][Nn][Tt]-[Ll][Ee][Nn][Gg][Tt][Hh]", because `-i` means `--case-insensitive`.  
-> # Prints the second field only.   
-> # Patches all three individual commands together with the `|` (or _pipe_) character, which is how you "stack" program effectiveness in scripting.
->.  
+>  Gets the response header from variable `image-url`.  
+> 1. Filters for lines containing the string  
+>     "[Cc][Oo][Nn][Tt][Ee][Nn][Tt]-[Ll][Ee][Nn][Gg][Tt][Hh]",  
+>     because `-i` means `--case-insensitive`.  
+> 2. Prints the second field only.   
+> 3. Patches all three individual commands together 
+>     with the `|` (or _pipe_) character,  
+>     which is how you "stack" program effectiveness in scripting.  
+
+
+So. Now (in theory) we have a number.  
+What do we do with it?
+
+> ~~~  
 > Stacking is important.  
+> ~~~
 > Know when to split your stacks, and know when to build an _application_ on top of stacks.  
+> 
 > Scripts are generally how I'll refer to _backend programming_, but some backend things are applications, which I'll call out where they exist, eg `nginx` is an application, but `uptime` is a script.  
 > Scripts work with the underlying parts of how things work in our segment of 'nix adjacent programming.
 > Applications are _how information is presented to an end user_.
 > A `sysadmin` protects the backend from the user, and the user from the backend.  
 > Nobody wants to know how it works.  
 > They just want their application available for their needs.  
->.  
->. 
->. Stacks are your `${chef-knives}` and your `${gadgets}` and your `${pets}`. 
+>   
+> ~~~  
+> Stacks are your `${chef-knives}` and your `${gadgets}` and your `${pets}`. 
 > (a `${pet}` is a system you've named)  
 > (adorable, but slightly ineffecient when things start to scale)  
-> (often lost in `${fires}`, sadly)  
+> (often lost in `${fires}`, sadly) 
 
-So. Now we have a number.  
-What do we do with it?
+We then take the same concept as above  
+(grabbing some text and shoving it through a filter),  
+apply it to our target system,  
 
-Well, we take the same concept as above (grabbing some text and shoving it through a filter), apply it to our system, and then compare it with the `diff` utility to tell us what we need to know:  
-Functionally, can I write to the system I'm working on?  
+and then compare it with the `diff` utility to tell us what we need to know:  
+`Functionally, can I write to the system I'm working on?`
 
 ###### The (verified) Read  
 ###### Writing Out  
