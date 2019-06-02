@@ -8,58 +8,6 @@
 # Write for the human, not for the computer.
 #
 
-# Always make sure you can fix your problems quickly
-alias reload='echo "reloading bash aliases...";source ~/.bash_aliases;echo "aliases reloaded"'
-
-# Quality of Life shortcuts
-alias nano="nano -w"
-alias eba='nano ~/.bash_aliases'
-alias gg='sudo su --login'
-alias ll='ls -lah'
-alias search='lynx https://start.duckduckgo.com'
-alias sd='shutdown -hP now'
-alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
-
-# Window Manager
-alias twm='dtach -A ~/session/default -r winch dvtm'
-
-# Project Locations
-alias fsh='cd ~/f.sh'
-
-# Project SSH Aliases
-alias cdn='ssh ssh.jakimfett.com'
-
-
-# File system mounting
-alias bfmount="sshfs badfruit.local:/home/jakimfett /media/jakimfett/badfruit"
-
-# Virtualbox QOL improvements
-alias vbm="VBoxManage"
-
-
-# Project commands
-alias fdebug="vbm startvm 'fsh' --type separate"
-alias fclean="vbm controlvm 'fsh' removeallencpasswords"
-alias ful="vbm controlvm 'fsh' addencpassword 'Debian 9.4' ~/Documents/install.functions.sh/encryption.key"
-alias fres="vbm controlvm 'fsh' resume"
-
-alias fup="fclean;vbm startvm 'fsh' --type headless; sleep 3; ful"
-
-alias fsd="vbm controlvm 'fsh' acpipowerbutton"
-alias fkill="vbm controlvm 'fsh' poweroff"
-alias fsave="vbm controlvm 'fsh' savestate"
-
-
-# Debian sysadmin alias(es)
-alias update="sudo apt update; sudo apt install -f -y; sudo apt autoremove -y"
-alias upgrade="update; sudo apt dist-upgrade -y;"
-alias uprepair='update; sudo apt install --fix-broken; sudo apt install --fix-missing;'
-alias shutgrade='upgrade; sudo shutdown -hP now'
-
-# File sync stuffs
-alias syncfiles='rsync -rvhcO --progress'
-
-
 # This one goes out to Nune,
 # wherever she may be.
 
@@ -72,11 +20,24 @@ export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
 
 # Keep the frequent tools close at hand
 alias rba='source ~/.aliases'
+alias frl='echo "reloading bash aliases...";rba && echo "aliases reloaded"'
 alias eba='nano ~/.aliases'
 alias rbt='( sleep 5 ; reboot ) & logout'
+alias sd='shutdown -hP now'
+alias nano="nano -w"
+alias gg='sudo su --login'
+alias ll='ls -lah'
+
+# Project Locations
+alias fsh='cd ~/f.sh'
+
 
 # Always know *when* you are.
 alias chronoStamp='date "+(%:::z, %Z) %Y.%m.%d.%R.%S:"'
+
+# Quality of Life shortcuts
+alias search='lynx https://start.duckduckgo.com'
+alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
 
 # Keep an eye on what's in your ports.
 alias usbScan='chronoStamp && lsusb && echo'
@@ -107,5 +68,22 @@ alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 
+
+# Debian sysadmin alias(es)
+alias update="sudo apt update; sudo apt install -f -y; sudo apt autoremove -y"
+alias upgrade="update; sudo apt dist-upgrade -y;"
+alias uprepair='update; sudo apt install --fix-broken; sudo apt install --fix-missing;'
+alias shutgrade='upgrade; sudo shutdown -hP now'
+
 # figuring out what is installed manually
 alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
+
+
+
+
+
+
+# File sync stuffs
+alias syncfiles='rsync -rvhcO --progress'
+
+
