@@ -223,5 +223,8 @@ https://stackoverflow.com/questions/8883081/git-how-to-change-a-bare-to-a-shared
 https://stackoverflow.com/questions/4202726/publish-git-repo-on-a-web-only-provider-no-shell
 
 https://www.tunnelsup.com/raspberry-pi-phoning-home-using-a-reverse-remote-ssh-tunnel/
+https://blog.kylemanna.com/linux/ssh-reverse-tunnel-on-linux-with-systemd/
+https://linux.die.net/man/1/ssh
 
 http://www.webupd8.org/2009/03/recover-deleted-files-in-ubuntu-debian.html
+
