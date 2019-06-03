@@ -6,6 +6,7 @@ logs
 logs/*
 tmp
 tmp/*
+*.swp
 
 # Ignore configuration file(s)
 *.config
