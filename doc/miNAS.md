@@ -126,7 +126,7 @@ Before we start downloading, let's check how big this thing is:
 >     "[Cc][Oo][Nn][Tt][Ee][Nn][Tt]-[Ll][Ee][Nn][Gg][Tt][Hh]",  
 >     because `-i` means `--case-insensitive`.  
 > 2. Prints the second field only.   
-> 3. Patches all three individual commands together 
+> 3. Patches all three individual commands together
 >     with the `|` (or _pipe_) character,  
 >     which is how you "stack" program effectiveness in scripting.  
 
@@ -138,7 +138,7 @@ What do we do with it?
 > Stacking is important.  
 > ~~~
 > Know when to split your stacks, and know when to build an _application_ on top of stacks.  
-> 
+>
 > Scripts are generally how I'll refer to _backend programming_, but some backend things are applications, which I'll call out where they exist, eg `nginx` is an application, but `uptime` is a script.  
 > Scripts work with the underlying parts of how things work in our segment of 'nix adjacent programming.
 > Applications are _how information is presented to an end user_.
@@ -147,10 +147,10 @@ What do we do with it?
 > They just want their application available for their needs.  
 >   
 > ~~~  
-> Stacks are your `${chef-knives}` and your `${gadgets}` and your `${pets}`. 
+> Stacks are your `${chef-knives}` and your `${gadgets}` and your `${pets}`.
 > (a `${pet}` is a system you've named)  
 > (adorable, but slightly ineffecient when things start to scale)  
-> (often lost in `${fires}`, sadly) 
+> (often lost in `${fires}`, sadly)
 
 We then take the same concept as above  
 (grabbing some text and shoving it through a filter),  
@@ -219,3 +219,7 @@ https://www.reddit.com/r/FileRun/comments/6jg5ea/filerun_on_nginx/
 
 https://stackoverflow.com/questions/4554718/how-to-use-patterns-in-the-case-statement-in-bash-scripting#4555979
 https://stackoverflow.com/questions/253055/how-do-i-push-amended-commit-to-the-remote-git-repository#432518
+https://stackoverflow.com/questions/8883081/git-how-to-change-a-bare-to-a-shared-repo
+https://stackoverflow.com/questions/4202726/publish-git-repo-on-a-web-only-provider-no-shell
+
+http://www.webupd8.org/2009/03/recover-deleted-files-in-ubuntu-debian.html

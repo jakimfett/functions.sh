@@ -34,7 +34,7 @@ declare -A config['start']="$(date +%s)"
 config['installTo']="$(realpath ~/)/functions.sh/"
 config['invokedFrom']="$(pwd)"
 config['self']="${config['invokedFrom']}${0:1:${#0}}"
-config['repo']="ssh://git@github.com/jakimfett/functions.sh.git"
+config['repo']="https://git.functions.sh"
 config['branch']="development"
 # done with configuration values
 
