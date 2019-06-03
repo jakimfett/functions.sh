@@ -6,6 +6,9 @@
 # @advice: when stuck, do something functionally frivelous, but long term strategic additionally
 # @link: https://en.wikipedia.org/wiki/The_Story_of_Mel
 # @addendum: http://archive.is/jDFuO
+#
+# @todo double check input sanitization#
+# @todo (better)feature flags mebbe?
 
 ###
 # Author's comment (2018.07.14.2119.gmt.gregorian):
@@ -13,6 +16,7 @@
 # educating yourself mitigates the (karmic) stupid tax
 # remove the following line(s) from execution to violate (some|all) warrenties
 #exit 1
+
 ###
 # hey
 # --- # --- # --- # --- #
@@ -42,8 +46,11 @@ config['branch']="development"
 declare -A stateVar
 
 # zero is a decent stand-in for a boolean false, right?
-stateVar['depsPresent']=0
+# feature/state flags, zero is good?
+# I bet most of these could be pre-filled with some one-liners...hmm... @todo
+stateVar['missingDep']=0
 stateVar['emptyDir']=0
+stateVar['clutteredDir']=0
 stateVar['gitRemote']=0
 stateVar['isGit']=0
 stateVar['doInstall']=0
@@ -66,6 +73,8 @@ exits['dependency']=2
 exits['permissions']=3
 exits['debug']=4
 exits['failmuffins']=5
+exits['userInput']=6
+exits['aog']=7
 # done with exit codes
 
 
@@ -73,15 +82,7 @@ exits['failmuffins']=5
 # prerequisites
 declare depList=('git' 'ssh' 'rsync' )
 declare -A missingDep
-# --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
-# mmmm...poetry.
-# --- # --- # --- # --- # --- # --- # --- #
-# something else that is a lot like life.
-# --- # --- # --- # --- #
 
-
-
-echo
 # iterate through the dependencies list
 # check that the system knows that they exist
 for singleDep in ${depList[@]}; do
@@ -93,78 +94,37 @@ for singleDep in ${depList[@]}; do
 	# add an entry to the missing dependencies array
 	# if the dependency location query to the system returns empty
 	if [ ! "${depLoc}" ];then
-		echo
-		echo "dependency '${singleDep}' not located..."
-		missingDep["${singleDep}"]=0
-	else
-		echo "found ${singleDep} at ${depLoc}"
+		missingDep["${singleDep}"]=1
+		# increment the missingDep counter
+		stateVar['missingDep']=$((${stateVar['missingDep']}+1))
+	#else
+		# @debug @todo re-add the logthis function, super useful
+		#echo "found ${singleDep} at ${depLoc}"
 	fi
 
-done;echo
-
-
-
-# fail early, fail often
-if [ ! "${!missingDep[@]}" == '' ];then
-	echo
-	echo "error running script."
-	echo "missing: ${!missingDep[@]}"
-	echo "Please install dependencies to continue."
-	echo
-	echo "failmuffins"
-	exit ${exits['dependency']}
-else
-	echo "all dependencies found.";echo
-fi
-# done with prerequisites
-
-# default install location
-echo "Checking for existing installation..."
-echo
-echo
+done
 
 # load functions.sh if it exists on the system
-if [ -d "${config['installTo']}" ];then
-	echo "Directory '${config['installTo']}' exists."
+if [ ! -d "${config['installTo']}" ];then
 
 	if [ ! "$(ls -A ${config['installTo']})" ];then
-		echo "Directory is empty tho."
+		# Directory is empty tho.
 		stateVar['emptyDir']=1
-	fi
-
-	if [ ! "$(ls -A ${config['installTo']})/.git/" ];then
+	elif [ ! "$(ls -A ${config['installTo']})/.git/" ];then
+		# Git repo found, should we update it?
 		stateVar['isGit']=1
-		echo "Git repo found, should we update it?"
+	else
+		# install dir has stuff in it, but it's not git
+		stateVar['clutteredDir']=1
 	fi
-
-else
-	echo "Install directory '${config['installTo']}' nonexistent."
-
-	declare rawInput
-	read -p 'Create install directory (y(es)/n(o)/?(help)): ' rawInput
-	case "${rawInput}" in
-		[yY]|[yY][eE][sS])
-			echo "Positive answer, creating directory."
-			mkdir -p "${config['installTo']}" # @todo pretty sure I meant to do this later, feature flags mebbe?
-
-			if [ ! -d "${config['installTo']}" ]; then
-				echo "Directory creation failed, please debug permissions for '(pwd)' and '${config['installTo']}' and try again."
-			else
-				echo "Directory created."
-			fi
-		;;
-		[nN]|[nN][oO])
-			echo "Not creating directory, program exit."
-		;;
-		*)
-			echo "Write in option, shiney."
-		;;
-	esac
-
-
-	unset rawInput
 
 fi
+
+# --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
+# mmmm...poetry.
+# --- # --- # --- # --- # --- # --- # --- #
+# something else that is a lot like life.
+# --- # --- # --- # --- #
 
 # @todo uncomment for visual streamlining
 # clear
@@ -176,18 +136,118 @@ echo "#=-                                               -=#"
 echo "#=-                                               -=#"
 echo
 
-if [ ${stateVar['isGit']} == 1 ];then
-	echo "#=- a git repository exists at ~/functions.sh     -=#"
+if [ ! ${stateVar['missingDep']} == 0 ]; then
+	echo "#=-                                               -=#"
+	echo "#=-             error running script.             -=#"
+	echo "#=-           missing dependenc(y|ies):           -=#"
+	echo "total - ${stateVar['missingDep']}"
+	echo "		${!missingDep[@]}"
+	echo "#=-                                               -=#"
+	echo "#=- Please install dependencies to continue, eg:  -=#"
+	# help out the end user when possible by spitting out the remedial commands.
+	echo "		apt install ${!missingDep[@]}"
+	echo "#=-                                               -=#"
+	exit ${exits['dependency']}
+else
+	echo "#=-        ...all dependencies found...           -=#"
+	echo "#=-                                               -=#"
+fi
+
+# @todo - this logic needs streamlined a bit
+# check directory exists, then for files, then if files are a git repo.
+# currently checks if empty dir, then git dir, then non-git stuffs.
+if [ ! ${stateVar['emptyDir']} == 0 ]; then
+	echo "#=-                                               -=#"
+	echo "#=-         Install directory nonexistent:        -=#"
+	echo "ls -lah '${config['installTo']}'"
+	echo "#=-           Create install directory?           -=#"
+
+
+	declare rawInput
+	read -p '                (y/n/?): ' rawInput
+	echo "#=-                                               -=#"
+
+	case "${rawInput}" in
+		[yY]|[yY][eE][sS]) # case-insensitive match for 'y' or 'yes'
+			echo "#=-                                               -=#"
+			echo "#=-    Positive answer, creating directory...     -=#"
+			mkdir -p "${config['installTo']}"
+
+			if [ ! -d "${config['installTo']}" ]; then
+				echo "#=-                                               -=#"
+				echo "#=-          Directory creation failed,           -=#"
+				echo "#=-       please debug/set permissions for        -=#"
+				echo "#=-            your install location              -=#"
+				echo "#=-                and try again.                 -=#"
+				echo "#=-                                               -=#"
+				echo "		debug: 	ls -lah ${config['installTo']}"
+				echo "#=-                   and/or                      -=#"
+				echo "		set: 	chmod u+x ${config['installTo']}"
+				echo "#=-                                               -=#"
+				echo "#=-                                               -=#"
+				echo "#=-                program exits                  -=#"
+				echo
+				exit ${exits['permissions']}
+			else
+				echo "#=-              Directory created.               -=#"
+				echo "#=-                                               -=#"
+			fi
+
+		;;
+		[nN]|[nN][oO])
+			echo "#=-            Not creating directory.            -=#"
+			# @todo add cache/tmp run location option?
+			echo "#=-                                               -=#"
+			echo "#=-                program exits                  -=#"
+			exit ${exits['userInput']}
+
+		;;
+		*)
+			echo "Write in option, shiney."
+			exit ${exits['userInput']}
+		;;
+	esac
+	unset rawInput # collect yer garbage
+
+else
+	echo "#=-       ...install directory found...           -=#"
+	echo "#=-                                               -=#"
+fi
+
+if [ ! ${stateVar['isGit']} == 0 ];then
+	echo "#=- a repository exists at the install location   -=#"
+	ls -lah ${config['installTo']}
+	echo "#=-                                               -=#"
 	echo "#=- would you like to attempt to update this      -=#"
 	echo "#=- existing installation?                        -=#"
 
-	echo "#=-                 (y/n/?)                       -=#"
 	declare rawInput
-	read -p "#=-                  " rawInput
+	read -p '                (y/n/?): ' rawInput
+	echo "#=-                                               -=#"
+
+	case "${rawInput}" in
+		[yY]|[yY][eE][sS]) # case-insensitive match for 'y' or 'yes'
+			echo "#=-                                               -=#"
+			echo "#=-    Positive answer, attempting to update...   -=#"
+
+		;;
+		[nN]|[nN][oO])
+			echo "#=-                Not updating.                  -=#"
+			echo "#=-                                               -=#"
+			echo "#=-                program exits                  -=#"
+			exit ${exits['userInput']}
+
+		;;
+		*)
+			echo "Write in option, shiney."
+			exit ${exits['userInput']}
+		;;
+	esac
+	unset rawInput
 
 else
 
-	echo "#=- there is no current installation, install?    -=#"
+	echo "#=-      no current installation, install?        -=#"
 	echo "#=-                                               -=#"
 
 	# solicite the user for some feedback
@@ -249,6 +309,10 @@ fi
 
 echo we got here
 exit 5
+
+
+
+
 
 # mobility, finally!
 cd "${config['installTo']}"
