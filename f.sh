@@ -117,23 +117,58 @@ else
 	echo "all dependencies found.";echo
 fi
 # done with prerequisites
-echo ${config['installTo']}
+
+# default install location
+echo "Checking for existing installation..."
+echo
+echo
 
 # load functions.sh if it exists on the system
 if [ -d "${config['installTo']}" ];then
+	echo "Directory '${config['installTo']}' exists."
 
-	if [ ! "$(ls -A ~/functions.sh)" ];then
+	if [ ! "$(ls -A ${config['installTo']})" ];then
+		echo "Directory is empty tho."
 		stateVar['emptyDir']=1
 	fi
 
+	if [ ! "$(ls -A ${config['installTo']})/.git/" ];then
+		stateVar['isGit']=1
+		echo "Git repo found, should we update it?"
+	fi
+
+else
+	echo "Install directory '${config['installTo']}' nonexistent."
+
+	declare rawInput
+	read -p 'Create install directory (y(es)/n(o)/?(help)): ' rawInput
+	case "${rawInput}" in
+		[yY]|[yY][eE][sS])
+			echo "Positive answer, creating directory."
+			mkdir -p "${config['installTo']}" # @todo pretty sure I meant to do this later, feature flags mebbe?
+
+			if [ ! -d "${config['installTo']}" ]; then
+				echo "Directory creation failed, please debug permissions for '(pwd)' and '${config['installTo']}' and try again."
+			else
+				echo "Directory created."
+			fi
+		;;
+		[nN]|[nN][oO])
+			echo "Not creating directory, program exit."
+		;;
+		*)
+			echo "Write in option, shiney."
+		;;
+	esac
+
+
+	unset rawInput
+
 fi
 
-echo
-echo
-echo exiting
-exit 5
-
+# @todo uncomment for visual streamlining
 # clear
+
 echo "#=-              welcome to f.sh                  -=#"
 echo
 echo "#=- this script manages your local 'functions.sh' -=#"
@@ -146,22 +181,24 @@ if [ ${stateVar['isGit']} == 1 ];then
 	echo "#=- would you like to attempt to update this      -=#"
 	echo "#=- existing installation?                        -=#"
 
-	declare userInput
-	# solicite the user for some feedback
-	read "#=-                                       (y/n/?) -=#" userInput
+	echo "#=-                 (y/n/?)                       -=#"
+	declare rawInput
+	read -p "#=-                  " rawInput
 
 else
 
 	echo "#=- there is no current installation, install?    -=#"
 	echo "#=-                                               -=#"
+
+	# solicite the user for some feedback
+	# @todo functionize this
 	echo "#=-                 (y/n/?)                       -=#"
-
-
 	declare rawInput
-	read -p "#=-                    " rawInput
+	read -p "#=-                  " rawInput
+
 
 	case "${rawInput}" in
-		[yY])
+		[yY]|[yY][eE][sS])
 			stateVar['doInstall']=1
 			echo "#=-                                               -=#"
 
@@ -195,7 +232,7 @@ else
 
 			fi
 		;;
-		[nN])
+		[nN]|[nN][oO])
 			echo "#=-                                               -=#"
 			echo "#=- script will now exit                          -=#"
 			echo "#=-                                               -=#"
@@ -210,11 +247,10 @@ else
 fi
 
 
-
-exit 13
+echo we got here
+exit 5
 
 # mobility, finally!
-mkdir -p "${config['installTo']}"
 cd "${config['installTo']}"
 ls -lah
 
