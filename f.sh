@@ -9,11 +9,13 @@
 #
 # @todo double check input sanitization#
 # @todo (better)feature flags mebbe?
+# @todo load functions.sh if it exists on the system
+# @todo loop user input bits until valid/exit path found
 
 ###
 # Author's comment (2018.07.14.2119.gmt.gregorian):
 # this is a *very* dangerous tool
-# educating yourself mitigates the (karmic) stupid tax
+# educating yourself mitigates the (karmic) stupidity tax
 # remove the following line(s) from execution to violate (some|all) warrenties
 #exit 1
 
@@ -49,10 +51,15 @@ declare -A stateVar
 # feature/state flags, zero is good?
 # I bet most of these could be pre-filled with some one-liners...hmm... @todo
 stateVar['missingDep']=0
+stateVar['installDirExists']=0
+stateVar['installDirEmpty']=0
+stateVar['installDirHasGit']=0
+stateVar['installDirCluttered']=0
+
 stateVar['emptyDir']=0
 stateVar['clutteredDir']=0
-stateVar['gitRemote']=0
 stateVar['isGit']=0
+stateVar['gitRemote']=0
 stateVar['doInstall']=0
 
 # determine if the user can sudo
@@ -104,21 +111,22 @@ for singleDep in ${depList[@]}; do
 
 done
 
-# load functions.sh if it exists on the system
-if [ ! -d "${config['installTo']}" ];then
+# check if our installation directory exists,
+# then verify the state if so
+if [ -d "${config['installTo']}" ];then
+	# directory exists
+	stateVar['installDirExists']=1
 
-	if [ ! "$(ls -A ${config['installTo']})" ];then
-		# Directory is empty tho.
-		stateVar['emptyDir']=1
-	elif [ ! "$(ls -A ${config['installTo']})/.git/" ];then
-		# Git repo found, should we update it?
-		stateVar['isGit']=1
+	# check for directory status and set state variables
+	if [ -d "${config['installTo']}/.git/" ]; then
+		stateVar['installDirHasGit']=1
+	elif [ "$(ls -A ${config['installTo']})" ]; then
+		stateVar['installDirCluttered']=1
 	else
-		# install dir has stuff in it, but it's not git
-		stateVar['clutteredDir']=1
+		stateVar['installDirEmpty']=1 # double negatives are as good as single negatives
 	fi
-
 fi
+
 
 # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
 # mmmm...poetry.
@@ -131,6 +139,7 @@ fi
 
 echo "#=-              welcome to f.sh                  -=#"
 echo
+echo "#=-                                               -=#"
 echo "#=- this script manages your local 'functions.sh' -=#"
 echo "#=-                                               -=#"
 echo "#=-                                               -=#"
@@ -154,18 +163,18 @@ else
 fi
 
 # @todo - this logic needs streamlined a bit
-# check directory exists, then for files, then if files are a git repo.
 # currently checks if empty dir, then git dir, then non-git stuffs.
-if [ ! ${stateVar['emptyDir']} == 0 ]; then
+if [ ${stateVar['installDirExists']} == 0 ]; then
+
 	echo "#=-                                               -=#"
+	echo
+	ls -lah "${config['installTo']}"
+	echo
 	echo "#=-         Install directory nonexistent:        -=#"
-	echo "ls -lah '${config['installTo']}'"
 	echo "#=-           Create install directory?           -=#"
-
-
+	echo "#=-                  (y/n/?):                     -=#"
 	declare rawInput
-	read -p '                (y/n/?): ' rawInput
-	echo "#=-                                               -=#"
+	read -p 'input -->               ' rawInput
 
 	case "${rawInput}" in
 		[yY]|[yY][eE][sS]) # case-insensitive match for 'y' or 'yes'
@@ -189,6 +198,7 @@ if [ ! ${stateVar['emptyDir']} == 0 ]; then
 				echo
 				exit ${exits['permissions']}
 			else
+				stateVar['installDirExists']=1
 				echo "#=-              Directory created.               -=#"
 				echo "#=-                                               -=#"
 			fi
@@ -214,21 +224,29 @@ else
 	echo "#=-                                               -=#"
 fi
 
-if [ ! ${stateVar['isGit']} == 0 ];then
+
+echo "#=-        ...checking for git repo...            -=#"
+echo "#=-                                               -=#"
+
+if [ ! ${stateVar['installDirHasGit']} == 0 ]; then
 	echo "#=- a repository exists at the install location   -=#"
-	ls -lah ${config['installTo']}
+	git status ${config['installTo']}
 	echo "#=-                                               -=#"
 	echo "#=- would you like to attempt to update this      -=#"
 	echo "#=- existing installation?                        -=#"
-
+	echo "#=-                  (y/n/?):                     -=#"
 	declare rawInput
-	read -p '                (y/n/?): ' rawInput
-	echo "#=-                                               -=#"
+	read -p 'input -->               ' rawInput
 
 	case "${rawInput}" in
 		[yY]|[yY][eE][sS]) # case-insensitive match for 'y' or 'yes'
 			echo "#=-                                               -=#"
 			echo "#=-    Positive answer, attempting to update...   -=#"
+			# git remote -v
+			# grep "upstream==$repoURL"
+			# git add/set upstream?
+			# git fetch
+			# echo git merge upstream $branch
 
 		;;
 		[nN]|[nN][oO])
@@ -247,50 +265,44 @@ if [ ! ${stateVar['isGit']} == 0 ];then
 
 else
 
-	echo "#=-      no current installation, install?        -=#"
+	echo "#=-     no git repo at target install location.   -=#"
 	echo "#=-                                               -=#"
+fi
+
+if [ ! ${stateVar['installDirCluttered']} == 0 ]; then
+	# something lives here, but it's not us.
+
+	echo "#=-  Misc files exist in target install location: -=#"
+	ls -lah ${stateVar['installTo']}
+	echo "#=-                                               -=#"
+	echo "#=-             Please resolve.                   -=#"
+
+	echo
+	exit ${exits['failmuffins']}
+else
+	echo "#=-          install directory empty.             -=#"
+	echo "#=-                                               -=#"
+fi
+
+
+
+if [ ${stateVar['installDirCluttered']} == 0 ] \
+	&& [ ${stateVar['installDirHasGit']} == 0 ] \
+	&& [ ! ${stateVar['installDirExists']} == 0 ]; then
+	echo "#=-                                               -=#"
+	echo "#=-      ...functions.sh not found, install?      -=#"
 
 	# solicite the user for some feedback
-	# @todo functionize this
-	echo "#=-                 (y/n/?)                       -=#"
+	# @todo functionize this (again)
+	echo "#=-                  (y/n/?):                     -=#"
 	declare rawInput
-	read -p "#=-                  " rawInput
+	read -p 'input -->               ' rawInput
 
 
 	case "${rawInput}" in
 		[yY]|[yY][eE][sS])
 			stateVar['doInstall']=1
-			echo "#=-                                               -=#"
 
-			mkdir -p "${config['installTo']}"
-			cd "${config['installTo']}"
-
-			# check if remote repo is accessible
-			# all we need is the exit code, so any output is sent to /dev/null
-			git ls-remote --exit-code -h "${config['repo']}" > /dev/null 2>&1
-
-			if [ "$?" == 0 ];then
-				echo "#=-                                               -=#"
-				echo "#=- Remote repo exists, attempting to clone...    -=#"
-
-				# double check that we're in the installation directory
-				if [ "$(pwd)/" == "${config['installTo']}" ];then
-					git clone --single-branch -b "${config['branch']}" "${config['repo']}" .
-					if [ "$?" == 0 ];then
-						echo "#=-                                               -=#"
-						echo "#=- initialized git repository...                 -=#"
-					else
-
-						echo "#=-                                               -=#"
-						echo "#=-                 failmuffins                   -=#"
-					fi
-				fi
-			else
-				echo "#=-                                               -=#"
-				echo "#=- remote repository not found, cannot install   -=#"
-				echo "#=-                                               -=#"
-
-			fi
 		;;
 		[nN]|[nN][oO])
 			echo "#=-                                               -=#"
@@ -304,6 +316,67 @@ else
 		;;
 	esac
 	unset rawInput
+
+	if [ ! ${stateVar['doInstall']} == 0 ]; then
+		echo "#=-                                               -=#"
+
+		if [ ! -d "${config['installTo']}" ]; then
+			# yes, in theory we created this earlier.
+			# double checking tho.
+			mkdir -p "${config['installTo']}"
+		fi
+
+		# move to the install location so we can locally reference things
+		cd "${config['installTo']}"
+		echo "#=-                                               -=#"
+		echo "Pinging remote repo: '${config['repo']}'"
+		echo "#=-                                               -=#"
+		# check if remote repo is accessible
+		# all we need is the exit code, so any output is sent to /dev/null
+		git ls-remote --exit-code -h "${config['repo']}" > /dev/null 2>&1
+
+		if [ "$?" == 0 ];then
+			echo "#=-                                               -=#"
+			echo "#=- Remote repo exists, attempting to clone...    -=#"
+			echo "#=-                                               -=#"
+
+			# double check that we're in the installation directory
+			if [ "$(pwd)/" == "${config['installTo']}" ];then
+				echo
+				git clone --single-branch -b "${config['branch']}" "${config['repo']}" "${config['installTo']}"
+				echo
+				git status "${config['installTo']}"
+				echo
+				if [ "$?" == 0 ];then
+					echo "#=-                                               -=#"
+					echo "#=-        initialized git repository.            -=#"
+				else
+
+					echo "#=-                                               -=#"
+					echo "#=-                 failmuffins                   -=#"
+				fi
+			fi
+		else
+			echo "#=-                                               -=#"
+			echo "#=- remote repository not found, cannot install   -=#"
+			echo "#=-                                               -=#"
+
+		fi
+	else
+		echo "not installing"
+	fi
+else
+	echo
+	echo
+	echo "...something went wrong, plz debug:"
+	echo
+	echo "path: '${config['installTo']}'"
+	echo
+	ls -lah "${config['installTo']}"
+	echo
+	git status "${config['installTo']}"
+	echo
+	exit ${exits['failmuffins']}
 fi
 
 
