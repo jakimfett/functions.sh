@@ -18,6 +18,6 @@ isBridging() {
 }
 
 if [ ! isBridging ]; then
-  echo "no bridge found, creating
+  echo "no bridge found, creating"
   # newBridge
 fi
