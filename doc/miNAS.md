@@ -5,7 +5,10 @@ Or RPMNASA, for short.
 
 ## Seafile
 
-As of 2019.06, we're going to use SeaFile.
+As of 2019.06, we're going to use SeaFile.  
+By which I mean, we're going to use a bootstrap box to write several SD cards for bringing a 3-node media platform online and then keep it updated with standardized 'nix stuffs, sorta.
+
+I say "sorta" because any time someone says "standardized", we're fighting [XKCD #927](https://xkcd.com/927/)
 
 ### Why?
 Because it's the least worst option, all things considered.
@@ -154,7 +157,19 @@ We then take the same concept as above
 apply it to our target system,  
 
 and then compare it with the `diff` utility to tell us what we need to know:  
-`Functionally, can I write to the system I'm working on?`
+`Functionally, can I write my data to the system I'm working on?`
+
+####### Example Code
+
+Okay, you got this far.  
+Congrats!  
+That was a lot of information to digest.  
+
+Here's how to check, download, and verify your image file:
+`getFile.sh "${location}" "${destinaton}"`
+
+By default, the file will be written to your present working directory (if `pwd` is a writeable location for you).
+
 
 ###### The (verified) Read  
 ###### Writing Out  
@@ -180,6 +195,8 @@ https://safetomatic.com/best-sd-card-for-raspberry-pi-3/
 
 https://eltechs.com/raspberry-pi-nas-guide/  
 
+https://libreelec.tv/downloads_new/raspberry-pi-3-3/
+
 https://www.howtogeek.com/139433/how-to-turn-a-raspberry-pi-into-a-low-power-network-storage-device/  
 
 https://manual.seafile.com/build_seafile/rpi.html  
@@ -199,3 +216,6 @@ https://www.htpcguides.com/install-openmediavault-raspberry-pi-nas-server-minibi
 https://www.reddit.com/r/linux/comments/3hyx2x/pydio_vs_seafile_vs_owncloud/  
 https://www.reddit.com/r/selfhosted/comments/6ir906/need_help_with_seafile_filerun_or_resilio/
 https://www.reddit.com/r/FileRun/comments/6jg5ea/filerun_on_nginx/  
+
+https://stackoverflow.com/questions/4554718/how-to-use-patterns-in-the-case-statement-in-bash-scripting#4555979
+https://stackoverflow.com/questions/253055/how-do-i-push-amended-commit-to-the-remote-git-repository#432518
