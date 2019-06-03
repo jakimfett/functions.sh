@@ -3,7 +3,7 @@
 # @description: minimalism, sorta
 # @goal: satisfy mel's curiousity
 # @practice: never do anything for just one reason
-# @advice: when stuck, do something functionally frivelous, but long term strategic additionally
+# @advice: when stuck, do something functionally/tactically frivelous with long term strategic benefit.
 # @link: https://en.wikipedia.org/wiki/The_Story_of_Mel
 # @addendum: http://archive.is/jDFuO
 #
@@ -11,6 +11,8 @@
 # @todo (better)feature flags mebbe?
 # @todo load functions.sh if it exists on the system
 # @todo loop user input bits until valid/exit path found
+# @todo command line params for config bits
+# @todo split actual install into install.sh, obviously
 
 ###
 # Author's comment (2018.07.14.2119.gmt.gregorian):
