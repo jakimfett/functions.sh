@@ -119,11 +119,13 @@ for singleDep in ${depList[@]}; do
 
 		elif [ ${stateVar['sudoer']} == 1 ]; then
 			# install things, hope you're running a debian variant...
-			echo "dependenc(y|ies) missing:"
-			echo " ${!missingDep[@]}"
+			echo "dependency missing:"
+			# @todo install all dependencies at the end if any are missing
+			# feature flags for use of dependencies that are missing after prereq check
+			echo "${singleDep}"
 			echo
 			echo "Attempting to install..."
-			sudo apt install "${!missingDep[@]}"
+			sudo apt install "${singleDep}" -y
 		else
 			echo "failmuffins"
 			exit ${exits['failmuffins']}
@@ -453,6 +455,9 @@ declare -a saneParam
 declare -A doneList
 
 function cleanUp {
+	# @todo remove dependencies (if any were installed?)
+	# if [missingdeplist > 0 ];then
+	# 	sudo apt purge -y
 	config['end']="$(date +%s)"
 	echo
 	echo "runtime: $(expr ${config['start']} - ${config['end']})"
