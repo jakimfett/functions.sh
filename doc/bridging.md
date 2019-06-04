@@ -1,12 +1,14 @@
 # Why Bridge
-Because decentralized is the way to go, and a vast amount of stuff generally prevents you from using SSH to get to your stuff from outside a Local Area Network (or LAN).
+Because decentralized is the way to go, and a vast amount of stuff generally attempts to prevent you from using SSH to get to your stuff from outside a Local Area Network (or LAN).
 
-Because a mesh is made of many hops.
+Because a mesh is made of many hops, and you can [run your own](/doc/serving.md).
 
-Because it's easy, thanks to open source software tools (like this one!).
+Because it's (relatively) easy, thanks to open source software tools (like this one!).
 
 ## Bridge Nodes
-Bridge nodes have (surprise!) a user called `bridge` which acts as a template/default account for doing reverse SSH connections from behind firewalls, routers, switches, etc.
+Bridge nodes are (generally) publicly routable systems which have (surprise!) a user called `bridge` acting as a reverse SSH endpoint from hardware behind firewalls, routers, switches, etc.
+
+To connect to your endpoint, you configure the endpoint to connect to the bridge, then you (and your users) connect to the bridge, and from there to your endpoint.
 
 The bridge user password is a closely guarded secret, but you can use an ed25519 key to connect.
 
