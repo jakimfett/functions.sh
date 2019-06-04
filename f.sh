@@ -89,7 +89,8 @@ exits['aog']=7
 
 
 # prerequisites
-declare depList=('git' 'ssh' 'rsync' )
+# @todo autoinstall, or autocompile?
+declare depList=('git' 'ssh' 'rsync' 'mlocate')
 declare -A missingDep
 
 # iterate through the dependencies list
@@ -103,9 +104,18 @@ for singleDep in ${depList[@]}; do
 	# add an entry to the missing dependencies array
 	# if the dependency location query to the system returns empty
 	if [ ! "${depLoc}" ];then
-		missingDep["${singleDep}"]=1
-		# increment the missingDep counter
-		stateVar['missingDep']=$((${stateVar['missingDep']}+1))
+
+		if [ stateVar['sudoer'] == 0 ]; then
+			missingDep["${singleDep}"]=1
+			# increment the missingDep counter
+			stateVar['missingDep']=$((${stateVar['missingDep']}+1))
+		elif [ ${stateVar['sudoer']} == 1 ]; then
+			# install things, hope you're running a debian variant...
+			sudo apt install "${!missingDep[@]}"
+		else
+			echo "failmuffins"
+			exit ${exits['failmuffins']}
+		fi
 	#else
 		# @debug @todo re-add the logthis function, super useful
 		#echo "found ${singleDep} at ${depLoc}"
