@@ -37,5 +37,23 @@ Suffice it to say, once you've communicated your pubkey to us, we'll add it to t
 
 ## <a name="connect"></a>Connect
 
+Now you've got a key, a bridge, and an endpoint.  
+
+Test this command on your endpoint to make sure it's reaching the bridge:  
+`ssh -2 -NTaC -o ExitOnForwardFailure=yes -i /path/to/your/.ssh/ed25519.privkey -R <port>:localhost:<local_ssh_port> bridge@<server_name_or_IP>`
+
+> The `-2` option forces version 2 of the SSH protocol.  
+> The `-N` option forces a non-command connection, which requires protocol v2.  
+> The `-T` option disables TTY forwarding, for security.  
+> The `-a` option disables forwarding of the auth agent connection, for security.  
+> The `-C` option compresses all traffic, remove for cpu efficiency at the cost of network bandwidth.  
+> Using `-o ExitOnForwardFailure=yes` gives you immediate feedback if the forwarding attempt fails.  
+> The `-R` option makes the port forwarding happen.
+
+Debug as necessary, then set that command up as a [service](/com/net/bridge.service) for reboot persistence.  
+## Congrats!
+In theory, you're connected!
+
 ## <a name="sources"></a>External Sources
-https://blog.g3rt.nl/upgrade-your-ssh-keys.html
+https://blog.g3rt.nl/upgrade-your-ssh-keys.html  
+https://linux.die.net/man/1/ssh
