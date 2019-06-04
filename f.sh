@@ -66,7 +66,11 @@ stateVar['doInstall']=0
 
 # determine if the user can sudo
 sudoer=$(sudo -n -v 2>&1)
-if [[ "${sudoer}" == *"password is required"* ]];then
+if [[ "${sudoer}" == *"may not run sudo"* ]];then
+	stateVar['sudoer']=0
+elif [[ "${sudoer}" == *"password is required"* ]];then
+	stateVar['sudoer']=1
+elif [[ "${sudoer}" == '' ]];then
 	stateVar['sudoer']=1
 else
 	stateVar['sudoer']=0
