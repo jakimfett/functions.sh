@@ -355,7 +355,9 @@ if [ ${stateVar['installDirCluttered']} == 0 ] \
 		# move to the install location so we can locally reference things
 		cd "${config['installTo']}"
 		echo "#=-                                               -=#"
+		echo
 		echo "Pinging remote repo: '${config['repo']}'"
+		echo
 		echo "#=-                                               -=#"
 		# check if remote repo is accessible
 		# all we need is the exit code, so any output is sent to /dev/null
