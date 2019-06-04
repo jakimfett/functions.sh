@@ -1,0 +1,15 @@
+[Unit]
+Description=Assorted Tech Reverse SSH Service
+ConditionPathExists=|/usr/bin
+After=network.target
+
+[Service]
+User=bridge
+ExecStart=/usr/bin/ssh -NTC -o ServerAliveInterval=90 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no -i /home/bridge/.ssh/id_ed25519 -R 60022:localhost:22 bridge@ssh.jakimfett.com
+
+# Restart every >2 seconds to avoid StartLimitInterval failure
+RestartSec=13
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
