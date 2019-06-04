@@ -93,6 +93,7 @@ exits['aog']=7
 declare depList=('git' 'ssh' 'rsync' 'mlocate')
 declare -A missingDep
 
+echo "Prerequisites check, hold plz..."
 # iterate through the dependencies list
 # check that the system knows that they exist
 for singleDep in ${depList[@]}; do
@@ -105,12 +106,19 @@ for singleDep in ${depList[@]}; do
 	# if the dependency location query to the system returns empty
 	if [ ! "${depLoc}" ];then
 
-		if [ stateVar['sudoer'] == 0 ]; then
+		echo "Sudoer var: ${stateVar['sudoer']} "
+
+		if [ ${stateVar['sudoer']} == 0 ]; then
 			missingDep["${singleDep}"]=1
 			# increment the missingDep counter
 			stateVar['missingDep']=$((${stateVar['missingDep']}+1))
+
 		elif [ ${stateVar['sudoer']} == 1 ]; then
 			# install things, hope you're running a debian variant...
+			echo "dependenc(y|ies) missing:"
+			echo " ${!missingDep[@]}"
+			echo
+			echo "Attempting to install..."
 			sudo apt install "${!missingDep[@]}"
 		else
 			echo "failmuffins"
