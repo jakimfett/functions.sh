@@ -113,6 +113,26 @@ There's numerous ways (including the command line, which is what we'll be using 
 
 Use whatever works for you.
 
+###### Hardware Stuffs
+Okay. We've got a server online.  
+Now, what is connected to it?  
+
+####### GPIO
+The [Raspberry Pi org](https://www.raspberrypi.org/documentation/hardware/raspberrypi/README.md) and [pinout.xyz](https://pinout.xyz/) both have a lot of solid info on the onboard GPIO and solder pads, but we're going to focus on USB devices for the moment.  
+
+More on GPIO when we talk about [Immutable Mode](#immutable).
+
+####### USB Devices
+USB allows us to use most single board computers (as well as desktops, servers, and virtual machines) and their peripherals interchangeably, and management of the hardware ports is good opsec.  
+
+> Let's assume we know nothing about what is installed or plugged in.
+
+First we want to see all our USB devices:
+`lsusb`
+
+This gives us a list of IDs (second column on my system), and right now, because it's a Pi Zero with nothing plugged in (except power), there's only a single entry:
+``
+
 ###### The Write
 Eventually, we want something called "Immutable Architecture", but on dev, we need to be able to modify things easily.
 
@@ -170,7 +190,7 @@ Here's how to check, download, and verify your image file:
 
 By default, the file will be written to your present working directory (if `pwd` is a writeable location for you).
 
-
+###### Automounting
 ###### The (verified) Read  
 ###### Writing Out  
 ###### Verified Read 2: Electric Boogaloo  
@@ -226,5 +246,6 @@ https://www.tunnelsup.com/raspberry-pi-phoning-home-using-a-reverse-remote-ssh-t
 https://blog.kylemanna.com/linux/ssh-reverse-tunnel-on-linux-with-systemd/
 https://linux.die.net/man/1/ssh
 
-http://www.webupd8.org/2009/03/recover-deleted-files-in-ubuntu-debian.html
+http://www.webupd8.org/2009/03/recover-deleted-files-in-ubuntu-debian.html  
+https://libreelec.tv/downloads_new/raspberry-pi-3-3/
 
