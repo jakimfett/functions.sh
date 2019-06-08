@@ -30,6 +30,14 @@
 # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
 
 
+# some prerequisites
+# @todo autoinstall, or autocompile?
+declare depList=('git' 'ssh' 'rsync' 'mlocate' )
+declare depListDev=('man-db' 'etckeeper')
+declare -A missingDep
+declare -A autoInstall=('man-db')
+declare -A autoCompile=('capn-proto')
+
 
 # configuration values
 declare -A config['start']="$(date +%s)"
@@ -92,10 +100,6 @@ exits['aog']=7
 
 
 
-# prerequisites
-# @todo autoinstall, or autocompile?
-declare depList=('git' 'ssh' 'rsync' 'mlocate')
-declare -A missingDep
 
 echo "Prerequisites check, hold plz..."
 # iterate through the dependencies list
