@@ -4,7 +4,7 @@
 #
 # Meta script that tries to write itself, and sometimes the universe.
 
-#### This is the spec. Modify it with caution. ####
+#### This is the spec. Sorta. Modify it with caution and understanding. ####
 
 # @function.desc
 # A description of the function, briefly.
@@ -20,7 +20,7 @@
 #
 # @function.comment
 #	Meta information on the function.
-# 	This one is for the template, and thus has no real purpose.
+# 	This function is for the template, and exists primarily for informational purposes.
 function templateFunction {
 	exit 0
 }
