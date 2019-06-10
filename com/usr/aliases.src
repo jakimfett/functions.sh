@@ -37,8 +37,9 @@ alias ll='ls -lah'
 alias fsh='cd ~/f.sh'
 
 # Always know *when* you are.
-alias chronoStamp='date -j "+%Y.%m.%d_%R.%S_(UTC%z,%Z):"'
-alias chronoStampUTC='date -j -u "+%Y.%m.%d_%R.%S_(UTC%z,%Z):"'
+dateTimeFormat='+%Y.%m.%d_%R.%S_(UTC%z,%Z)'
+alias chronoStamp="date -j '${dateTimeFormat}'"
+alias chronoStampUTC="date -j -u '${dateTimeFormat}'"
 
 # Quality of Life shortcuts
 alias search='lynx https://start.duckduckgo.com'
