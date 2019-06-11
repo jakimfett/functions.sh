@@ -9,7 +9,7 @@ Hence, the [p3p system](/doc/p3p.md).
 > oh stars this is out of control, but a lot of it is super important to grok...oh well, can't build NeoRome in a day...
 
 ## Method(ologies)
-Whitelisted security.  
+Immutable architecture, positive confirmation security.  
 Automate everything possible.
 Do the hard thing now so later is easier.  
 
