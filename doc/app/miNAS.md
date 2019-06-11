@@ -271,7 +271,13 @@ Breathe.
 Tech is magic.  
 Sometimes magic takes time.  
 
+###### failmuffins
+Sometimes, doing things remotely is problematic.  
+That's why terminal sessions can be direct, or locally hosted.  
+When a terminal session is locally hosted to the server in question,  
+when you lose connection, your session persists.
 
+Combined with a tool such as `mosh`, your session (and the multi-threaded problem solving interface that lives in it) can survive a server being offlined.
 
 
 ###### dd=destroy_disk
