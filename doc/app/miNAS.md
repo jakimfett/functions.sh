@@ -1,27 +1,31 @@
 # A Raspberry Pi Minimalist's Network Attached Storage Array
 Or RPMNASA, for short.
 
-> oh stars this is out of control, but a lot of it is super important to grok...oh well, can't build NeoRome in a day...
+Having a backup isn't enough.  
+You need to know that you can restore from your backup without burning your local or cached copy.
 
-@todo - write script to autoreplace links with archive.is and internetarchive links, with generation/curlhash/httpcodeverification
+Hence, the [p3p system](/doc/p3p.md).
+
+> oh stars this is out of control, but a lot of it is super important to grok...oh well, can't build NeoRome in a day...
 
 ## Seafile
 
-As of 2019.06, we're going to use SeaFile.  
-By which I mean, we're going to use a bootstrap box to write several SD cards for bringing a 3-node media platform online and then keep it updated with standardized 'nix stuffs, sorta.
+As of 2019.06, we're going to use a heavily customized instance of SeaFile to do the heavy lifting.  
+By which we mean, we're going to use a bootstrap box to write several SD cards for bringing a 3-node Seafile-based media sharing and collaboration platform online, and then keep it updated with standardized 'nix stuffs, sorta.
 
-I say "sorta" because any time someone says "standardized", we're fighting [XKCD #927](https://xkcd.com/927/)
+We say "sorta" because any time someone says "standardized", we're fighting [XKCD #927](https://xkcd.com/927/).
 
 ### Why?
 Because it's the least worst option, all things considered.
 
 Functional Requirements:  
 * Low overhead  
-    The target server is a raspberry pi, you do the math.  
+    The target server hardware is an original raspberry pi, you do the math.  
 * cross platform client  
-    Our users bring their own devices, much to our chagrin.    
-    Server, desktop, notebook, and mobile.  
-    Must be available on Linux, Windows, OSX, Android, or iOS.  
+    Our users bring their own devices (much to our chagrin).    
+    Server, desktop, notebook, embedded application, and mobile.  
+    Must be available on Debian and Kodi, Windows, OSX, Android, and iOS.
+        Blackberry and Windows Phone are nice-to-haves, but non-essential.  
 * open source  
     Gotta be able to compile it ourselves, yo.  
 * Security as a core development focus  
@@ -31,10 +35,11 @@ Functional Requirements:
 
     ...built in client-side de-duplication subsystem would be nice, could that be built into the file-upload processing?
 
-### Why not Syncthing, or FreeNAS, or...?
+### Why not Unison, or Syncthing, or FreeNAS, or...?
 
 Glad you asked.  
 * Syncthing fails the cross platform test (although the [iOS development bounty may eventually change that](https://www.bountysource.com/issues/7699463-native-ios-port-gui).  
+* [Unison](https://www.cis.upenn.edu/~bcpierce/unison/) is designed for two sets of file, and gets really weird when more than a single instance of the application manages a single set of files. Has potential, but...not quite what we need for our use-case of minimum-three-copies.
 * FreeNAS is overweight for the target hardware (requires [8+GB of RAM](https://www.freenas.org/hardware-requirements/)).  
 * OpenMediaVault is a medium-weight [PHP service manager glued together with Python and JavaScript](https://www.openmediavault.org/about.html).  
     ...if that combo isn't enough to disqualify it for you, go right ahead and try it out. We'll wait.  
@@ -75,6 +80,18 @@ Right now, we're going to set up a network attached storage unit, because that's
 
 For this set of examples, we'll be using Bash on Linux, which is to say, the **B**ourne-**A**gain **Sh**ell v4.4.12 and [DietPi](https://dietpi.com/) v6.24.1 on a [Raspberry Pi Zero W](https://www.raspberrypi.org/blog/raspberry-pi-zero-w-joins-family/) v1.1 (rev. 9000C1), via SSH/Mosh.**  
 
+We'll be using [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) as our target image, DietPi serves as a shim for the moment, and is being used because it's what we had on hand when we started writing this.
+
+Go ahead and get Raspbian Lite downloading on your system now, by grabbing the SD image torrent file:
+`curl 'https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-04-09/2019-04-08-raspbian-stretch-lite.zip.torrent' --compressed -O`
+
+> The `-O` or `--remote-name` option tells `curl` to name the file locally whatever it is on the remote server.
+> Using `--compressed` is probably overkill for a 30ish kilobyte file, but it's good habit.
+
+Now, load that torrent file into your p2p client, and get some raspbian-y goodness downloading in the background while we figure out what to do with the image file once we've got it.
+
+> If you don't have a command line server yet, see [What Server?](#what-server)
+
 @todo - complete hardware list w/ recommendations and compromise explanation(s).
 
 Bash allows you to run commands manually (by typing them in to the terminal) or via an automatic system, like a server's task scheduler (eg `cron`) or as the result of some event, like an API call or hardware update.
@@ -93,11 +110,14 @@ First, let's make sure we're able to actually use git via the terminal.
 Log into your server and enter the following command:
 `which git && git --version`
 
-##### Wait, what server?
+##### <a name="what-server"></a>Wait, what server?
 Oh right, we haven't made ourselves a server yet.  
 Okay, that's pretty easy.  
 Hit the [DietPi downloads page](https://dietpi.com/downloads/images/} and grab the version corresponding to your hardware.  
 For Raspberry Pi, that'll be "ARMv6", and I'm using Stretch for this.  
+
+You could also jump straight to raspbian, via their downloads page (or your p2p client).
+
 
 You're going to need:
 * Some form of computer.  
@@ -107,7 +127,7 @@ You're going to need:
 * Some form of control-feedback loop.  
     I'm partial to a keyboard and display, but if you've got a direct mental uplink to the machines, more power to ya.  
 * Some way to bootstrap the "stage" and "live" system(s).  
-    Personally, I like the capabilities of the [Inatech USB OTG hub](https://www.amazon.com/dp/B00OCBXIY8/) paired with my RasPi Zero W.  
+    Personally, we like the capabilities of the [Inatech USB OTG hub](https://www.amazon.com/dp/B00OCBXIY8/) paired with my RasPi Zero W.  
     More on the dev-->stage-->live pipeline later.  
     For now, just knowing it exists is enough, we're building dev right now.  
 
@@ -178,6 +198,9 @@ Now we're in business. We've got two drives, an 8gb and a 32gb, neither of which
 
 So, we want the 32gb SD card. Our identifier is therefore `/dev/sda`, and it's unmounted, which is good for the next part.
 
+###### dd
+H
+
 ##### Hardware Stuffs (post-burn)
 Okay. We've got a server online.  
 Now, what is connected to it?  
@@ -247,7 +270,7 @@ We then take the same concept as above
 apply it to our target system,  
 
 and then compare it with the `diff` utility to tell us what we need to know:  
-`Functionally, can I write my data to the system I'm working on?`
+`Functionally, can we write my data to the system I'm working on?`
 
 ####### Example Code
 
