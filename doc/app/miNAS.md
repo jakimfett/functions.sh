@@ -8,6 +8,14 @@ Hence, the [p3p system](/doc/p3p.md).
 
 > oh stars this is out of control, but a lot of it is super important to grok...oh well, can't build NeoRome in a day...
 
+## Method(ologies)
+Whitelisted security.  
+Automate everything possible.
+Do the hard thing now so later is easier.  
+
+_Collaborate._
+
+
 ## Seafile
 
 As of 2019.06, we're going to use a heavily customized instance of SeaFile to do the heavy lifting.  
@@ -55,7 +63,7 @@ Glad you asked.
 > Phew, that was a lot of alternatives.  
 > How did you finally decide?
 
-By actually installing a bunch of them and seeing how well it fit into my pipelines and workflows. Your need may vary, so try it out yourself.
+By actually installing a bunch of them and seeing how well it fit into our pipelines and workflows. Your need may vary, so try it out yourself.
 
 
 ### How? (Raspbian Sysadmin Crash Course)
@@ -113,29 +121,28 @@ Log into your server and enter the following command:
 ##### <a name="wait-what-server"></a>Wait, what server?
 Oh right, we haven't made ourselves a server yet.  
 Okay, that's pretty easy.  
-Hit the [DietPi downloads page](https://dietpi.com/downloads/images/} and grab the version corresponding to your hardware.  
-For Raspberry Pi, that'll be "ARMv6", and I'm using Stretch for this.  
+Hit the [DietPi downloads page](https://dietpi.com/downloads/images/) and grab the version corresponding to your hardware.  
+For Raspberry Pi, that'll be "ARMv6", and we're using Stretch for this.  
 
-You could also jump straight to raspbian, via their downloads page (or your p2p client).
-
+You could also jump straight to [raspbian, via their downloads page](https://www.raspberrypi.org/downloads/raspbian/) (or your p2p client).
 
 You're going to need:
 * Some form of computer.  
     Yaknow, like a RasPi.
 * Some form of storage.  
     Like this [32GB Samsung EVO+ SDHC card (spoiler: amazon link, @todo replaceme)](https://www.amazon.com/dp/B00WR4IJBE/)
-* Some form of control-feedback loop.  
-    I'm partial to a keyboard and display, but if you've got a direct mental uplink to the machines, more power to ya.  
+* Some form of interfaces.  
+    we're not partial to a keyboard and display, so if you've got a direct mental uplink to the machines, more power to ya.  
 * Some way to bootstrap the "stage" and "live" system(s).  
-    Personally, we like the capabilities of the [Inatech USB OTG hub](https://www.amazon.com/dp/B00OCBXIY8/) paired with my RasPi Zero W.  
+    Personally, we like the capabilities of the [Inatech USB OTG hub](https://www.amazon.com/dp/B00OCBXIY8/) paired with our RasPi Zero W running DietPi.  
     More on the dev-->stage-->live pipeline later.  
     For now, just knowing it exists is enough, we're building dev right now.  
 
 So, you've got your software and your hardware, now to combine the two and make a sandwich.  
 _(Okay, not really, but also, kinda.)_
 
-Write the DietPi image to the SD card.  
-If you can't get the OTG adapter working with your phone, give [Etcher](https://etcher.io/) a shot.  
+Write the Raspbian image to the SD card.  
+If you can't get the OTG adapter working with your bootstrap device, give [Etcher](https://etcher.io/) on your desktop a shot.  
 There's numerous ways (including the command line, which is what we'll be using here) to write a disk image to an SD card.  
 
 Use whatever works for you.
@@ -176,7 +183,7 @@ tmpfs          1023M     0 1023M   0% /tmp
 /dev/mmcblk0p1   42M   24M   18M  58% /boot
 ```
 
-From those two commands, we know that there are two disks connected, and one of them is `/dev/root`, the primary disk (which is 3% used on my system).
+From those two commands, we know that there are two disks connected, and one of them is `/dev/root`, the primary disk (which is 3% used on our system).
 
 What we want to know is _which one is the SD card_, so we need to keep looking. The `lsblk` command helps us with that, it lists all the block devices available to the system:
 ```
@@ -199,7 +206,17 @@ Now we're in business. We've got two drives, an 8gb and a 32gb, neither of which
 So, we want the 32gb SD card. Our identifier is therefore `/dev/sda`, and it's unmounted, which is good for the next part.
 
 ###### dd
-H
+Eventually, you've got a system image and an empty SD card.  
+Let's make sure it's actually empty.  
+This is the part where **doing it wrong will destroy your disk**.  
+_(or at least all the data that might have been on it)_  
+
+`dd bs=4M if=/dev/zero of=/dev/sda status=progress oflag=sync`
+
+###### Mounting
+Make sure you've got a place to put it:
+`mkdir -p /mnt/root/shared/usb[0-9]`
+`mount -r /dev/sdb1 /mnt/root/shared/usb0`
 
 ##### Hardware Stuffs (post-burn)
 Okay. We've got a server online.  
@@ -218,12 +235,37 @@ USB allows us to use most single board computers (as well as desktops, servers, 
 First we want to see all our USB devices:
 `lsusb`
 
-This gives us a list of IDs (second column on my system), and right now, because it's a Pi Zero with nothing plugged in (except power), there's only a single entry:
+This gives us a list of IDs (second column on our system), and right now, because it's a Pi Zero with nothing plugged in (except power), there's only a single entry:
 `Bus 001 Device 001: ID <redacted> Linux Foundation 2.0 root hub`
 
 That was easy enough. We have a single root hub, as expected.  
 
-Plugging my USB OTG hub/reader into the single OTG port on the Pi Zero gives me the following:
+Plugging our USB OTG hub/reader into the single OTG port on the Pi Zero gives me the following:
+```
+Bus 001 Device 005: ID <redacted> Silicon Motion, Inc. - Taiwan (formerly Feiya Technology Corp.) Flash Drive
+Bus 001 Device 004: ID <redacted> Alcor Micro Corp. Multi Flash Reader
+Bus 001 Device 007: ID <redacted> Generalplus Technology Inc.
+Bus 001 Device 003: ID <redacted> Plantronics, Inc.
+Bus 001 Device 002: ID <redacted> Terminus Technology Inc. Hub
+Bus 001 Device 001: ID <redacted> Linux Foundation 2.0 root hub
+```
+
+Lots of devices.  
+The hub is currently full of devices out here in meatspace.  
+Starting at the top, our guess as to which each one is:
+```
+b001d005: An 8gb flash drive, our 'test' data for this exercise.  
+b001d004: The USB OTG Hub's built in data card reader (multiformat, currently holding a 32gb SDHC card as the target system for this exercise).  
+b001d007: The audio dongle to give our Zero a mic&headset jack.  
+b001d003: USB headset, for reasons.  
+b001d002: The hub itself.  
+```
+
+Note that there's only one bus on this particular piece of hardware.  
+That's a limitation for anything operating across the bus, which means the more stuff we're attempting to do at once, the more this becomes a bottleneck.  
+If I remember correctly, the network hardware is on that same bus, so writing an SD card while downloading an updated image via our p2p client might take a bit longer than expected.
+
+Let's check on our torrent.
 
 
 ###### The Write
@@ -270,7 +312,7 @@ We then take the same concept as above
 apply it to our target system,  
 
 and then compare it with the `diff` utility to tell us what we need to know:  
-`Functionally, can we write my data to the system I'm working on?`
+`Functionally, can we write our data to the system we're working on?`
 
 ####### Example Code
 
@@ -350,3 +392,10 @@ https://www.unix.com/man-page/debian/1/chattr/
 http://www.aboutlinux.info/2005/11/make-your-files-immutable-which-even.html
 
 https://linux.die.net/man/1/find
+https://linux.die.net/man/1/curl
+https://linux.die.net/man/1/ls
+
+https://ss64.com/bash/dd.html
+http://man7.org/linux/man-pages/man1/dd.1.html
+https://www.mail-archive.com/eug-lug@efn.org/msg12073.html
+https://www.raspberrypi.org/documentation/installation/installing-images/
