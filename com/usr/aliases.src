@@ -74,3 +74,7 @@ alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sor
 
 # File sync stuffs
 alias syncfiles='rsync -rvhcO --progress'
+
+# making git less obtuse
+alias gst='git status'
+
