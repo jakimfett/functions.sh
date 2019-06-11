@@ -82,7 +82,7 @@ For this set of examples, we'll be using Bash on Linux, which is to say, the **B
 
 We'll be using [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) as our target image, DietPi serves as a shim for the moment, and is being used because it's what we had on hand when we started writing this.
 
-Go ahead and get Raspbian Lite downloading on your system now, by grabbing the SD image torrent file:
+Go ahead and get Raspbian Lite downloading on your system now, by grabbing the SD image torrent file:  
 `curl 'https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-04-09/2019-04-08-raspbian-stretch-lite.zip.torrent' --compressed -O`
 
 > The `-O` or `--remote-name` option tells `curl` to name the file locally whatever it is on the remote server.
@@ -90,7 +90,7 @@ Go ahead and get Raspbian Lite downloading on your system now, by grabbing the S
 
 Now, load that torrent file into your p2p client, and get some raspbian-y goodness downloading in the background while we figure out what to do with the image file once we've got it.
 
-> If you don't have a command line server yet, see [What Server?](#what-server)
+> If you don't have a command line server yet, see [What Server?](#wait-what-server)
 
 @todo - complete hardware list w/ recommendations and compromise explanation(s).
 
@@ -110,7 +110,7 @@ First, let's make sure we're able to actually use git via the terminal.
 Log into your server and enter the following command:
 `which git && git --version`
 
-##### <a name="what-server"></a>Wait, what server?
+##### <a name="wait-what-server"></a>Wait, what server?
 Oh right, we haven't made ourselves a server yet.  
 Okay, that's pretty easy.  
 Hit the [DietPi downloads page](https://dietpi.com/downloads/images/} and grab the version corresponding to your hardware.  
