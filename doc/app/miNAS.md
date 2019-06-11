@@ -1,6 +1,8 @@
 # A Raspberry Pi Minimalist's Network Attached Storage Array
 Or RPMNASA, for short.
 
+> oh stars this is out of control, but a lot of it is super important to grok...oh well, can't build NeoRome in a day...
+
 @todo - write script to autoreplace links with archive.is and internetarchive links, with generation/curlhash/httpcodeverification
 
 ## Seafile
@@ -51,7 +53,7 @@ Glad you asked.
 By actually installing a bunch of them and seeing how well it fit into my pipelines and workflows. Your need may vary, so try it out yourself.
 
 
-### How?
+### How? (Raspbian Sysadmin Crash Course)
 Glad you're asking followup questions.
 
 
@@ -65,22 +67,27 @@ A properly scripted system can identify, react, and solve to potentially catastr
 
 Scripting is about loosely anticipating future needs, and writing now the bits we know we'll need.
 
-It's also about [chef knives](https://lsh.io/plugtalk/#24) and collapseable toolkits, but that's a conversation for later.
+It's also about [chef knives](https://lsh.io/plugtalk/#24) and [collapsable toolkits](https://pics.jakimfett.com/reactions/collapsable_tools.gif), but that's a conversation for later.
 
 Right now, we're going to set up a network attached storage unit, because that's the thing that is currently on fire.
 
 #### Environment
 
-For this set of examples, we'll be using Bash on Linux, which is to say, the **B**ourne-**A**gain **Sh**ell v4.4.12 and [DietPi](https://dietpi.com/) v6.24.1 on a [Raspberry Pi Zero W](https://www.raspberrypi.org/blog/raspberry-pi-zero-w-joins-family/) v1.1 (rev. 9000C1), via SSH/Mosh.  
+For this set of examples, we'll be using Bash on Linux, which is to say, the **B**ourne-**A**gain **Sh**ell v4.4.12 and [DietPi](https://dietpi.com/) v6.24.1 on a [Raspberry Pi Zero W](https://www.raspberrypi.org/blog/raspberry-pi-zero-w-joins-family/) v1.1 (rev. 9000C1), via SSH/Mosh.**  
+
+@todo - complete hardware list w/ recommendations and compromise explanation(s).
 
 Bash allows you to run commands manually (by typing them in to the terminal) or via an automatic system, like a server's task scheduler (eg `cron`) or as the result of some event, like an API call or hardware update.
 
 ##### Using Git
 Version control systems are awesome, and learning to use them effectively is a cornerstone of collaboration.  
-Here's a guide written by a friend of mine, inspired by a different friend of mine, on using Git.
+Here's [a guide written by a friend of mine, inspired by a different friend of mine, on using Git](https://eliotberriot.com//blog/2019/03/05/building-sotfware-together-with-git/).
 
+Read it, possibly thrice over the course of the week. It'll give you a solid understanding of the why, how, and what of using git as a collaborative project system.
 
-Now that you understand the concepts and terminology (or at least have something to reference as a jumping-off-point), let's jump into the sysadmin side of this task.  
+===
+
+Now that you've been introduced to the concepts and terminology (or at least have something to reference as a jumping-off-point), let's jump into the sysadmin side of this task.  
 
 First, let's make sure we're able to actually use git via the terminal.  
 Log into your server and enter the following command:
@@ -100,7 +107,7 @@ You're going to need:
 * Some form of control-feedback loop.  
     I'm partial to a keyboard and display, but if you've got a direct mental uplink to the machines, more power to ya.  
 * Some way to bootstrap the "stage" and "live" system(s).  
-    Personally, I like the capabilities of the [Inatech USB OTG hub](https://www.amazon.com/dp/B00OCBXIY8/).  
+    Personally, I like the capabilities of the [Inatech USB OTG hub](https://www.amazon.com/dp/B00OCBXIY8/) paired with my RasPi Zero W.  
     More on the dev-->stage-->live pipeline later.  
     For now, just knowing it exists is enough, we're building dev right now.  
 
@@ -113,7 +120,65 @@ There's numerous ways (including the command line, which is what we'll be using 
 
 Use whatever works for you.
 
-###### Hardware Stuffs
+###### Using Disk Destroyer (to burn an SD card)
+Or as it's more officially known, [Data Duplicator](https://ss64.com/bash/dd.html).
+
+**Be careful when doing writes**, you can overwrite your system disk, completely erasing the entire host system!
+
+####### Find your Hardware
+First, know what your target is. Mine is an SD card plugged into an OTG adapter on the RasPiZero, which isn't something that directly translates into the `/dev/sd#` format typically used by 'nix systems.
+
+So, start by listing your devices with `ls -lah /dev/sd*`. You'll see something like this:
+```
+brw-rw---- 1 root disk 8,  0 Jun 10 11:07 /dev/sda
+brw-rw---- 1 root disk 8,  1 Jun 10 11:07 /dev/sda1
+brw-rw---- 1 root disk 8, 16 Jun 10 11:07 /dev/sdb
+brw-rw---- 1 root disk 8, 17 Jun 10 11:07 /dev/sdb1
+```
+
+> The flags for the `ls` command are for, respectively,  
+> `-l` = long listing format, aka full list  
+> `-a` or `--all` = list all entries (as opposed to skipping lines which start with a period, the linux 'hidden' or 'system' designator, eg '.config/' or '.local/')
+> `-h` or `--human-readable` = print the long listing format using human-readable numbers, eg 3.4GB instead of 3650722202 bytes.
+
+You can also check the size of your disks via the `df` command, eg `df -h`:
+```
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root       118G  2.5G  115G   3% /
+devtmpfs        181M     0  181M   0% /dev
+tmpfs           185M     0  185M   0% /dev/shm
+tmpfs           185M  2.7M  182M   2% /run
+tmpfs           5.0M     0  5.0M   0% /run/lock
+tmpfs           185M     0  185M   0% /sys/fs/cgroup
+tmpfs            50M  4.0K   50M   1% /var/log
+tmpfs            10M  1.4M  8.7M  14% /DietPi
+tmpfs          1023M     0 1023M   0% /tmp
+/dev/mmcblk0p1   42M   24M   18M  58% /boot
+```
+
+From those two commands, we know that there are two disks connected, and one of them is `/dev/root`, the primary disk (which is 3% used on my system).
+
+What we want to know is _which one is the SD card_, so we need to keep looking. The `lsblk` command helps us with that, it lists all the block devices available to the system:
+```
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda           8:0    1  29.7G  0 disk
+└─sda1        8:1    1  29.7G  0 part
+sdb           8:16   1   7.6G  0 disk
+└─sdb1        8:17   1   7.6G  0 part
+mmcblk0     179:0    0 119.1G  0 disk
+├─mmcblk0p1 179:1    0  41.8M  0 part /boot
+└─mmcblk0p2 179:2    0   119G  0 part /
+```
+
+Now we're in business. We've got two drives, an 8gb and a 32gb, neither of which are mounted, and the host system SD card, at 128gb, mounted as the boot and root of our system.
+
+> Note how these three commands each give slightly different perspective on the same hardware information.  
+> When in doubt about something, **double check**.  
+> You can always check again before executing a potentially destructive command, and most of the time, it'll save you some grief before the end.
+
+So, we want the 32gb SD card. Our identifier is therefore `/dev/sda`, and it's unmounted, which is good for the next part.
+
+##### Hardware Stuffs (post-burn)
 Okay. We've got a server online.  
 Now, what is connected to it?  
 
@@ -131,7 +196,12 @@ First we want to see all our USB devices:
 `lsusb`
 
 This gives us a list of IDs (second column on my system), and right now, because it's a Pi Zero with nothing plugged in (except power), there's only a single entry:
-``
+`Bus 001 Device 001: ID <redacted> Linux Foundation 2.0 root hub`
+
+That was easy enough. We have a single root hub, as expected.  
+
+Plugging my USB OTG hub/reader into the single OTG port on the Pi Zero gives me the following:
+
 
 ###### The Write
 Eventually, we want something called "Immutable Architecture", but on dev, we need to be able to modify things easily.
@@ -249,3 +319,11 @@ https://linux.die.net/man/1/ssh
 http://www.webupd8.org/2009/03/recover-deleted-files-in-ubuntu-debian.html  
 https://libreelec.tv/downloads_new/raspberry-pi-3-3/
 
+
+https://wiki.bash-hackers.org/scripting/posparams
+
+
+https://www.unix.com/man-page/debian/1/chattr/
+http://www.aboutlinux.info/2005/11/make-your-files-immutable-which-even.html
+
+https://linux.die.net/man/1/find
