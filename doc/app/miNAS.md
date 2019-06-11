@@ -19,6 +19,7 @@ _Collaborate._
 ## Seafile
 
 As of 2019.06, we're going to use a heavily customized instance of SeaFile to do the heavy lifting.  
+
 By which we mean, we're going to use a bootstrap box to write several SD cards for bringing a 3-node Seafile-based media sharing and collaboration platform online, and then keep it updated with standardized 'nix stuffs, sorta.
 
 We say "sorta" because any time someone says "standardized", we're fighting [XKCD #927](https://xkcd.com/927/).
@@ -29,19 +30,33 @@ Because it's the least worst option, all things considered.
 Functional Requirements:  
 * Low overhead  
     The target server hardware is an original raspberry pi, you do the math.  
+
 * cross platform client  
     Our users bring their own devices (much to our chagrin).    
     Server, desktop, notebook, embedded application, and mobile.  
     Must be available on Debian and Kodi, Windows, OSX, Android, and iOS.
         Blackberry and Windows Phone are nice-to-haves, but non-essential.  
+
 * open source  
     Gotta be able to compile it ourselves, yo.  
+
 * Security as a core development focus  
-    Tacked-on security is like tacked-on love.  
+    Tacked-on-at-the-last-minute security is like afterthought love.  
     Never trust it.  
+    Not with your private data, and definitely not with your life.  
 
 
-    ...built in client-side de-duplication subsystem would be nice, could that be built into the file-upload processing?
+Functional warning signs:  
+* Single user architecture with monologic backend methodology.  
+    If we're using server time to operate this system, it needs to server more than one user.  
+* Host/frontend lockin for the backend.  
+    If all you're doing over the http(s) protocol is a clickable file list, it needs to run on something other than Apache2. Seriously.  
+* Dead or MajorForked.  
+    If the original developer instigates a public fork, something went seriously wrong.  
+
+Nice to haves:  
+...a built in client-side de-duplication subsystem would be nice,
+    could that be built into the file-upload processing?
 
 ### Why not Unison, or Syncthing, or FreeNAS, or...?
 
@@ -63,7 +78,13 @@ Glad you asked.
 > Phew, that was a lot of alternatives.  
 > How did you finally decide?
 
-By actually installing a bunch of them and seeing how well it fit into our pipelines and workflows. Your need may vary, so try it out yourself.
+By actually installing a bunch of them and seeing how well it fit into our pipelines and workflows. Your need may vary, so try multiples out yourself once you've wrapped your head around the processes, the how and what of hosting small applications like this.  
+
+For now, take our word for it, give it a try, and see how it works out for your use case with a bit of tweaking.  
+
+Seriously, it's worth your time to understand all this.  
+
+Keep reading.
 
 
 ### How? (Raspbian Sysadmin Crash Course)
@@ -72,7 +93,7 @@ Glad you're asking followup questions.
 
 We install SeaFile by doing scripting, after prototyping on our single-board computer's operating system command line interface.
 
-Scripting, a way to automate things to be repeatable, is super useful.
+Scripting, a way to automate things to be (massively) repeatable, is super useful.
 
 Scripting, at the core of the discipline, is about leveraging the ability of "modern" computing to do repetitive things rather quickly.
 
@@ -110,7 +131,7 @@ Here's [a guide written by a friend of mine, inspired by a different friend of m
 
 Read it, possibly thrice over the course of the week. It'll give you a solid understanding of the why, how, and what of using git as a collaborative project system.
 
-===
+---
 
 Now that you've been introduced to the concepts and terminology (or at least have something to reference as a jumping-off-point), let's jump into the sysadmin side of this task.  
 
@@ -153,9 +174,27 @@ Or as it's more officially known, [Data Duplicator](https://ss64.com/bash/dd.htm
 **Be careful when doing writes**, you can overwrite your system disk, completely erasing the entire host system!
 
 ####### Find your Hardware
-First, know what your target is. Mine is an SD card plugged into an OTG adapter on the RasPiZero, which isn't something that directly translates into the `/dev/sd#` format typically used by 'nix systems.
+First, know what your target is.  
+Mine is an SD card plugged into an OTG adapter on the RasPiZero,  
+which isn't something that directly translates into the `/dev/sd#` format typically used by 'nix systems.
 
-So, start by listing your devices with `ls -lah /dev/sd*`. You'll see something like this:
+So, start by listing your devices with `ls /dev/`. You'll see something like this:
+```
+autofs         cpu_dma_latency  gpiomem  loop0  loop-control      net                 ram1   ram3    raw   ...     
+<snip>  
+...tty52  tty6   ttyAMA0  vc-mem     vcsa  vcsu   video10
+```
+Lots of devices.  
+Some correspond to physical hardware, others are virtual, like the various `loop` interfaces.  
+Let's focus in on the disk devices, which sometimes correspond to a format like `sd<alpha><numeric>`, eg `sda1` or `sdc3`. Other times the'll have other extensions, you may need to search engine ['how to mount SD card']() with your OS's flavourname to figure out what that particular OS uses to designate the hardware type you're plugging into it.
+
+On our shim system, that's gonna be 'sd' with an alphabet character after it, and then a number designating the partition if any exists.
+
+To solve this data problem, we're going to filter again, creating a [single tier stack](/doc/stacks/tiers.md) of `ls` and `grep`.
+
+> eg `ls -lah /dev/ | grep 'sd'`  
+
+Filter that input with `grep 'sd'`, and you'll get something like this:
 ```
 brw-rw---- 1 root disk 8,  0 Jun 10 11:07 /dev/sda
 brw-rw---- 1 root disk 8,  1 Jun 10 11:07 /dev/sda1
@@ -182,10 +221,14 @@ tmpfs            10M  1.4M  8.7M  14% /DietPi
 tmpfs          1023M     0 1023M   0% /tmp
 /dev/mmcblk0p1   42M   24M   18M  58% /boot
 ```
+> The `-h` flag designates 'human readable format' here again,  
+> however command flags are perhaps 43% similar across the tools we've been using.  
+>  
+> convention/standards cohesion is not open source's strong point is all we're saying.
 
-From those two commands, we know that there are two disks connected, and one of them is `/dev/root`, the primary disk (which is 3% used on our system).
+From those two commands, we know that there are at least two (possibly four) disks  connected, and one of them (/dev/root) is mounted on `/`, the primary disk (which is 3% used on our system).
 
-What we want to know is _which one is the SD card_, so we need to keep looking. The `lsblk` command helps us with that, it lists all the block devices available to the system:
+What we want to know is _which one is the SD card_, so we need to keep looking. The `lsblk` command helps us with that, it lists all the block devices (whether or not they're mounted) currently available to the system:
 ```
 NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
 sda           8:0    1  29.7G  0 disk
@@ -201,11 +244,37 @@ Now we're in business. We've got two drives, an 8gb and a 32gb, neither of which
 
 > Note how these three commands each give slightly different perspective on the same hardware information.  
 > When in doubt about something, **double check**.  
+> There's always another tool that gives alternate perspective.  
+>
 > You can always check again before executing a potentially destructive command, and most of the time, it'll save you some grief before the end.
 
 So, we want the 32gb SD card. Our identifier is therefore `/dev/sda`, and it's unmounted, which is good for the next part.
 
-###### dd
+###### Local Copy
+We can see there's a partition.  
+No idea what's on this particular bit of storage.  
+We're gonna make a copy of it, and then see if it's worth saving.  
+
+Start with making sure you have enough space, but as we established earlier, the main disk 'mmcblk0' on our RasPiZero here is less than 4% used, we could keep around three copies if necessary.
+
+It's not, and here's the command:  
+`dd bs=2M if=/dev/sda of=./sdcard_backup.img status=progress oflag=sync`
+
+And now we wait for 32 gigs to transfer from an SD card slot to a different SD card slot, a space of perhaps five centimeters, and our speed-of-light bus is going to take several minutes to accomplish it.
+
+```
+root@nomad:~/dl# dd bs=2M if=/dev/sda of=./sdcard_backup.img status=progress oflag=sync  
+90177536 bytes (90 MB, 86 MiB) copied, 13.1539 s, 6.9 MB/s
+```
+
+Breathe.  
+Tech is magic.  
+Sometimes magic takes time.  
+
+
+
+
+###### dd=destroy_disk
 Eventually, you've got a system image and an empty SD card.  
 Let's make sure it's actually empty.  
 This is the part where **doing it wrong will destroy your disk**.  
