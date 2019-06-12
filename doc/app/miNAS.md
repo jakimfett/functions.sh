@@ -271,6 +271,15 @@ Breathe.
 Tech is magic.  
 Sometimes magic takes time.  
 
+```
+31914459136 bytes (32 GB, 30 GiB) copied, 4133.16 s, 7.7 MB/s
+15218+1 records in
+15218+1 records out
+31914983424 bytes (32 GB, 30 GiB) copied, 4133.46 s, 7.7 MB/s
+```
+About 69 minutes, then.  
+Now to mount it locally.
+
 ###### failmuffins
 Sometimes, doing things remotely is problematic.  
 That's why terminal sessions can be direct, or locally hosted.  
