@@ -11,5 +11,5 @@ depList['git']="https://github.com/haiwen/libsearpc.git "
 
 
 
-declare depListDev=('man-db' 'etckeeper')
+declare depListDev=('man-db' 'etckeeper' 'fdisk')
 declare -A autoCompile=('capn-proto')
