@@ -180,9 +180,9 @@ which isn't something that directly translates into the `/dev/sd#` format typica
 
 So, start by listing your devices with `ls /dev/`. You'll see something like this:
 ```
-autofs         cpu_dma_latency  gpiomem  loop0  loop-control      net                 ram1   ram3    raw   ...     
+autofs cpu_dma_latency  gpiomem  loop0  loop-control net ram1   ram3 raw   ...
 <snip>  
-...tty52  tty6   ttyAMA0  vc-mem     vcsa  vcsu   video10
+...tty52  tty6   ttyAMA0  vc-mem vcsa  vcsu   video10
 ```
 Lots of devices.  
 Some correspond to physical hardware, others are virtual, like the various `loop` interfaces.  
@@ -335,6 +335,54 @@ Grab a cup of tea (you can make one, there's enough time), and prepare for bring
 This would be a good time to hydrate, locate the hardware you're bringing online, and stage it with the adapter you'll be using to power it.  
 Mine is a shiney new RasPi 3, and I'll be plugging it in next to my workhorse server, the converted Mac Mini.
 
+```
+root@nomad:~/dl# dd bs=4M if=/dev/zero of=/dev/sda status=progress oflag=sync  
+31914459136 bytes (32 GB, 30 GiB) copied, 2448.11 s, 13.0 MB/s  
+dd: error writing '/dev/sda': No space left on device  
+7610+0 records in  
+7609+0 records out  
+31914983424 bytes (32 GB, 30 GiB) copied, 2448.88 s, 13.0 MB/s  
+```
+
+Disc has been zero'd.  
+
+Now we write the downloaded image to the sd card.  
+
+```
+dd bs=2M if=./2019-04-08-raspbian-stretch-lite.img of=/dev/sda status=progress oflag=sync  
+root@nomad:~/dl/raspbian# dd bs=2M if=./2019-04-08-raspbian-stretch-lite.img of=/dev/sda status=progress oflag=sync
+192937984 bytes (193 MB, 184 MiB) copied, 20.0065 s, 9.6 MB/s
+```
+Once again, we wait.
+
+```
+root@nomad:~/dl/raspbian# dd bs=2M if=./2019-04-08-raspbian-stretch-lite.img of=/dev/sda status=progress oflag=sync1799356416 bytes (1.8 GB, 1.7 GiB) copied, 206.203 s, 8.7 MB/s
+860+0 records in
+860+0 records out
+1803550720 bytes (1.8 GB, 1.7 GiB) copied, 207.055 s, 8.7 MB/s
+```
+
+That took less time than expected.  
+Next, we mount the disk and see if we can add our hooks.  
+
+```
+mkdir ./sdmount;
+losetup --offset "$(($(fdisk -l /dev/sda | tail -2 | head -1 | awk '{print $2}')*512))" /dev/sdhc0 /dev/sda
+
+mount -o ro,loop,offset= /dev/sdhc0 ./sdmount
+```
+
+
+@todo.list:
+Link functions.sh
+checkout --> /usr/bin/src?
+link to PATH as `fsh`
+odot@
+
+copy pubkeys
+setup /etc repo & remote(s)
+Create bridge user?
+
 
 ###### Mounting
 Make sure you've got a place to put it:
@@ -389,6 +437,9 @@ That's a limitation for anything operating across the bus, which means the more 
 If I remember correctly, the network hardware is on that same bus, so writing an SD card while downloading an updated image via our p2p client might take a bit longer than expected.
 
 Let's check on our torrent.
+
+> I used `aria2c` (from the aria2 package) to download the torrent. For now, just obtain the image file.
+
 
 
 ###### The Write
