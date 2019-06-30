@@ -19,8 +19,8 @@ shopt -s expand_aliases
 export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
 
 # Keep the frequent tools close at hand
-alias rba='source ~/.bash_aliases'
-alias rlp='source ~/.profile'
+alias rba='source ~/.bash_aliases && sleep 3'
+alias rlp='source ~/.profile && sleep 3'
 alias frl='echo "reloading everything...";rba && echo "aliases reloaded" && rlp && echo "profile reloaded"'
 alias eba='nano ~/.bash_aliases'
 alias rbt='( sleep 5 ; reboot ) & logout'
@@ -37,7 +37,9 @@ alias ll='ls -lah'
 alias fsh='cd ~/f.sh'
 
 # Always know *when* you are.
-alias chronoStamp='date "+(%:::z, %Z) %Y.%m.%d.%R.%S:"'
+dateTimeFormat='+%Y.%m.%d_%R.%S_(UTC%z,%Z)'
+alias chronoStamp="date -j '${dateTimeFormat}'"
+alias chronoStampUTC="date -j -u '${dateTimeFormat}'"
 
 # Quality of Life shortcuts
 alias search='lynx https://start.duckduckgo.com'
@@ -72,3 +74,7 @@ alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sor
 
 # File sync stuffs
 alias syncfiles='rsync -rvhcO --progress'
+
+# making git less obtuse
+alias gst='git status'
+
