@@ -6,7 +6,10 @@
 # the functions.sh framework and runtime environment.
 
 # set this to wherever you want your deployment of f.sh to live:
-defaultInstall=$(realpath ~/)
+defaultInstall=$(realpath ~/functions.sh)
+echo
+clear
+echo "(returning zero is a success, oddly enough...)"
 echo
 echo "The functions.sh default location is:"
 echo "${defaultInstall}"
@@ -18,15 +21,17 @@ echo "${defaultInstall}"
 # Which is which is left as an exercise for the end user.
 # http://eps.mcgill.ca/jargon/jargon.html#heavy%20wizardry
 
+# currently, development is all we've got:
+defaultBranch='development'
+
+# where are you getting your code?
+#repoSource='https://git.functions.sh/'
+repoSource='gitea@badfruit:jakimfett/functions.sh.git'
+# have you considered mirroring?
+
+
 
 # flags - set programmatically, tinker, but make backups
-
-# check if fsh is sourced in a variety of user files, eg .bash_aliases or .profile
-fshSourced="$(grep 'f.sh' $(realpath ~/).* 2>/dev/null | grep source)"
-echo
-echo "Found the following..."
-echo "${fshSourced}"
-echo "...done with found 'source'."
 
 # Get the current directory from the pa
 currentDirectory="$(realpath $(pwd) | rev| cut -d'/' -f1 | rev)"
@@ -35,12 +40,11 @@ echo "Found current directory as:"
 echo "${currentDirectory}"
 echo "...done with found 'currentDirectory'."
 
-if [ ! -d "${defaultInstall}" ]; then
-	echo "...default install location is empty, creating..."
-	mkdir -p "${defaultInstall}"
-	echo "Exit code for directory creation was: '$?'"
-	echo "...moving into install location..."
-elseif [ "$1" == "--force" ]; then
+if [ -d "${defaultInstall}" ]; then
+
+		echo "Default install location exists, attempting to update."
+
+elif [ "$1" == "--force" ]; then
 	echo "Hidden force install protocal enabled, overwriting location?"
 	# read userInput
 	# if [ "$userInput" == "y" ]; then
@@ -48,24 +52,44 @@ elseif [ "$1" == "--force" ]; then
 	# fi
 	# unset userInput
 else
-	echo "Default install location exists, exiting."
+	echo "...default install location is empty, creating..."
+	mkdir -p "${defaultInstall}"
+	echo "(exit code for directory creation was: '$?')"
+
+	echo "...cloning tool locally..."
+	git clone -b "${defaultBranch}" "${repoSource}" "${defaultInstall}"
+	echo "(exit code for repo clone was: '$?')"
 fi
 
 echo
+echo "...moving into install location..."
+cd "${defaultInstall}"
+echo "Directory path is now:"
+pwd
+
+echo
 echo "Checking git status"
-git status ${defaultInstall};
- # 2>/dev/null > /dev/null
+git status 2>/dev/null > /dev/null
 isGit=$?
 echo "The install directory is git?"
 echo "${isGit}"
 
-exit 0
+if [ "${isGit}" -ne 0 ]; then
+	echo
+	echo "Directory at '${defaultInstall}' not a git repo, please debug!"
+	exit "${isGit}"
+fi
+
+# check if fsh is sourced in a variety of user files, eg .bash_aliases or .profile
+fshSourced="$(grep 'f.sh' $(realpath ~/).* 2>/dev/null | grep source)"
 
 if [ -z "${fshSourced}" ]; then
 	echo "Found sourced version of f.sh, use?"
 	echo "${fshSourced}"
 	exit 0
-elseif []; then
+elif [[ "$@" == *"--force"* ]]; then
+	echo "Forcing install of source to bash profile..."
+	echo "source '${defaultInstall}/com/usr/aliases.src'" >> "$(realpath ~/.profile)"
 fi
 
 
