@@ -27,6 +27,7 @@ alias rbt='( sleep 5 ; reboot ) & logout'
 alias sd='shutdown -hP now'
 alias nano="nano -w"
 alias gg='sudo su --login'
+alias lac='laminarc'
 
 # colorized ls:
 export CLICOLOR=1
