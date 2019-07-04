@@ -7,7 +7,9 @@
 
 # set this to wherever you want your deployment of f.sh to live:
 defaultInstall=$(realpath ~/)
-echo "Set to install functions.sh to ${defaultInstall}"
+echo
+echo "The functions.sh default location is:"
+echo "${defaultInstall}"
 
 
 # Yeah, that's actually it for the user configurable values.
@@ -22,14 +24,42 @@ echo "Set to install functions.sh to ${defaultInstall}"
 # check if fsh is sourced in a variety of user files, eg .bash_aliases or .profile
 fshSourced="$(grep 'f.sh' $(realpath ~/).* 2>/dev/null | grep source)"
 echo
-echo "Found the following"
+echo "Found the following..."
 echo "${fshSourced}"
-exit 0 
+echo "...done with found 'source'."
+
 # Get the current directory from the pa
 currentDirectory="$(realpath $(pwd) | rev| cut -d'/' -f1 | rev)"
+echo
+echo "Found current directory as:"
+echo "${currentDirectory}"
+echo "...done with found 'currentDirectory'."
 
-git status 2>/dev/null > /dev/null
+if [ ! -d "${defaultInstall}" ]; then
+	echo "...default install location is empty, creating..."
+	mkdir -p "${defaultInstall}"
+	echo "Exit code for directory creation was: '$?'"
+	echo "...moving into install location..."
+elseif [ "$1" == "--force" ]; then
+	echo "Hidden force install protocal enabled, overwriting location?"
+	# read userInput
+	# if [ "$userInput" == "y" ]; then
+	# rm -rf ${defaultInstall}
+	# fi
+	# unset userInput
+else
+	echo "Default install location exists, exiting."
+fi
+
+echo
+echo "Checking git status"
+git status ${defaultInstall};
+ # 2>/dev/null > /dev/null
 isGit=$?
+echo "The install directory is git?"
+echo "${isGit}"
+
+exit 0
 
 if [ -z "${fshSourced}" ]; then
 	echo "Found sourced version of f.sh, use?"
