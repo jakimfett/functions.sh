@@ -27,6 +27,7 @@ alias rbt='( sleep 5 ; reboot ) & logout'
 alias sd='shutdown -hP now'
 alias nano="nano -w"
 alias gg='sudo su --login'
+alias lac='laminarc'
 
 # colorized ls:
 export CLICOLOR=1
@@ -34,7 +35,7 @@ export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx
 alias ll='ls -lah'
 
 # Project Locations
-alias fsh='cd ~/f.sh'
+alias fsh='cd ~/functions.sh'
 
 # Always know *when* you are.
 dateTimeFormat='+%Y.%m.%d_%R.%S_(UTC%z,%Z)'
