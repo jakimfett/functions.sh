@@ -7,6 +7,12 @@ You understand that this is a work in progress.
 I use this on my production systems.  
 If you don't understand this codebase thoroughly, don't use it on live.  
 
+# definitions
+Live
+Testbed
+Dev
+Stage
+
 # disclaimer
 Shell scripts are dangerous.  
 This one moreso than most.  

@@ -35,7 +35,7 @@ export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx
 alias ll='ls -lah'
 
 # Project Locations
-alias fsh='cd ~/f.sh'
+alias fsh='cd ~/functions.sh'
 
 # Always know *when* you are.
 dateTimeFormat='+%Y.%m.%d_%R.%S_(UTC%z,%Z)'
