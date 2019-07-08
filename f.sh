@@ -15,6 +15,31 @@
 # @todo split actual install into install.sh, obviously
 # @todo scan docs for missing/broken links, combine with archive.is replacement?
 
+###
+# Author's comment (2018.07.14.2119.gmt.gregorian):
+# this is a *very* dangerous tool
+# educating yourself mitigates the (karmic) stupidity tax
+# remove the following line(s) from execution to violate (some|all) warrenties
+#exit 1
+
+###
+# hey
+# --- # --- # --- # --- #
+# submolecular life looks a lot like code.
+# --- # --- # --- # --- # --- # --- # --- #
+# huh. that's odd.
+# --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
+
+
+# some prerequisites
+# @todo autoinstall, or autocompile?
+declare depList=('git' 'ssh' 'rsync' 'mlocate' 'traceroute' 'traceroute6' 'dig')
+declare depListDev=('man-db' 'etckeeper')
+declare -A missingDep
+declare -A autoInstall=('man-db')
+declare -A autoCompile=('capn-proto')
+
+
 
 # grab the epoc timestamp (for determining how long stuff took to run)
 declare -A stateVar

@@ -508,6 +508,8 @@ Here's how to check, download, and verify your image file:
 
 By default, the file will be written to your present working directory (if `pwd` is a writeable location for you).
 
+> lost down a 'does the `touch` command have standardized exit codes, or shall I end up rolling my own, yet again?' rabbit hole and/or trail.
+
 ###### Automounting
 ###### The (verified) Read  
 ###### Writing Out  

@@ -27,11 +27,12 @@ alias rbt='( sleep 5 ; reboot ) & logout'
 alias sd='shutdown -hP now'
 alias nano="nano -w"
 alias gg='sudo su --login'
+alias lac='laminarc'
 
 # colorized ls:
 export CLICOLOR=1
 export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx
-alias ll='ls -lah'
+alias ll='ls $LS_OPTIONS -lah'
 
 # Project Locations
 alias fsh='cd ~/functions.sh'
@@ -68,6 +69,8 @@ alias update="sudo apt update; sudo apt install -f -y; sudo apt autoremove -y"
 alias upgrade="update; sudo apt dist-upgrade -y;"
 alias uprepair='update; sudo apt install --fix-broken; sudo apt install --fix-missing;'
 alias shutgrade='upgrade; sudo shutdown -hP now'
+# figuring out what is installed manually
+alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
 
 # figuring out what was installed manually
 alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
@@ -77,4 +80,3 @@ alias syncfiles='rsync -rvhcO --progress'
 
 # making git less obtuse
 alias gst='git status'
-
