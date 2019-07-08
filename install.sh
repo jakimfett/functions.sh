@@ -19,24 +19,21 @@ includeFilePath="$(realpath ~/.profile)" # <-- single line added to the end
 # set this next line to wherever you want your deployment of f.sh to live:
 defaultInstallRoot=$(realpath ~/functions.sh) # <-- default install location.
 
-# This is suboptimal, but *useful*.
-if [[ ! "$@" == *"--persistLog"* ]]; then
-	clear
-fi
-
-
-echo
-echo "(returning zero is a success, oddly enough...)"
-echo
-echo "The functions.sh default location is:"
-echo "${defaultInstallRoot}"
-
 
 # Yeah, that's actually it for the user configurable values.
 #
 # Here there be heavy wizardy and/or voodoo programming.
 # Which is which is left as an exercise for the end user.
 # http://eps.mcgill.ca/jargon/jargon.html#heavy%20wizardry
+
+
+# This is suboptimal, but *useful*.
+if [[ ! "$@" == *"--persistLog"* ]]; then
+	clear
+fi
+
+echo "The functions.sh default location is:"
+echo "${defaultInstallRoot}"
 
 # currently, development is all we've got:
 defaultBranch='development'
