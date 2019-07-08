@@ -83,10 +83,10 @@ echo
 echo "Checking git status"
 git status 2>/dev/null > /dev/null
 isGit=$?
-echo "The install directory is git?"
-echo "${isGit}"
 
-if [ "${isGit}" -ne 0 ]; then
+if [ "${isGit}" == 0 ];then
+	echo "The install directory is git."
+else [ "${isGit}" == 0]; then
 	echo
 	echo "Directory at '${defaultInstallRoot}' not a git repo, please debug!"
 	exit "${isGit}"
