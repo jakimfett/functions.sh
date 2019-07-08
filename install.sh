@@ -4,11 +4,28 @@
 #
 # A jumble of things meant to configure, set up, and otherwise assemble
 # the functions.sh framework and runtime environment.
+#
+# Commitment to non-destructive default paths:
+#	# Generally, this script attempts to check with the user before doing			#
+#	# something (anything) destructive. The use of flags, or mashing your keyboard,	#
+#	# will override this non-destructive path, so read the warning lables.			#
+#
+# Shorthand:
+# <name> = a variable, of the designation 'name'
+# ~/ = /home/<username>, directory reference
+#
+# files modified by this script:
+includeFilePath="$(realpath ~/.profile)" # <-- single line added to the end
+# set this next line to wherever you want your deployment of f.sh to live:
+defaultInstallRoot=$(realpath ~/functions.sh) # <-- default install location.
 
-# set this to wherever you want your deployment of f.sh to live:
-defaultInstallRoot=$(realpath ~/functions.sh)
+# This is suboptimal, but *useful*.
+if [[ ! "$@" == *"--persistLog"* ]]; then
+	clear
+fi
+
+
 echo
-clear
 echo "(returning zero is a success, oddly enough...)"
 echo
 echo "The functions.sh default location is:"
@@ -81,12 +98,14 @@ fi
 
 if [[ "$@" == *"--force"* ]]; then
 	echo "Forcing install of source to bash profile..."
-	cp $(realpath ~/.profile) $(realpath ~/.profile).bak
-	cat $(realpath ~/.profile).bak | egrep -v 'f.sh|functions.sh' >> $(realpath ~/.profile).install
-	echo "source '${defaultInstallRoot}/com/usr/aliases.src'" >> "$(realpath ~/.profile).install"
+	cp "${includeFilePath}" "${includeFilePath}.bak"
+	cat "${includeFilePath}.bak" | egrep -v 'f.sh|functions.sh' >> "${includeFilePath}.install"
+	echo "source '${defaultInstallRoot}/com/usr/aliases.src'" >> "${includeFilePath}.install"
 	echo
-	echo "See '$(realpath ~/.profile).bak' file."
-	echo "Use 'mv $(realpath ~/.profile).install $(realpath ~/.profile)' to complete the installation."
+	echo
+	echo "See '${includeFilePath}.bak' file."
+	echo "Execute the following command to complete installation:"
+	echo "mv ${includeFilePath}.install ${includeFilePath}"
 	exit 0
 fi
 
@@ -98,6 +117,6 @@ if [ ! -z "${fshSourced}" ]; then
 	echo "${fshSourced}"
 	exit 0
 else
-	echo "source '${defaultInstallRoot}/com/usr/aliases.src'" >> $(realpath ~/.profile)
+	echo "source '${defaultInstallRoot}/com/usr/aliases.src'" >> "${includeFilePath}"
 	exit 0
 fi
