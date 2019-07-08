@@ -25,7 +25,7 @@ alias frl='echo "reloading everything...";rba && echo "aliases reloaded" && rlp 
 alias eba='nano ~/.bash_aliases'
 alias rbt='( sleep 5 ; reboot ) & logout'
 alias sd='shutdown -hP now'
-alias nano="nano -w"
+alias nano="nano --nowrap --tabsize 2"
 alias gg='sudo su --login'
 alias lac='laminarc'
 
