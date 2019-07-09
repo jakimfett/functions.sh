@@ -39,8 +39,7 @@ echo "${defaultInstallRoot}"
 defaultBranch='development'
 
 # where are you getting your code?
-#repoSource='https://git.functions.sh/'
-repoSource='gitea@badfruit.local:jakimfett/functions.sh.git'
+repoSource='https://git.functions.sh/'
 # have you considered mirroring?
 
 
@@ -85,8 +84,9 @@ git status 2>/dev/null > /dev/null
 isGit=$?
 
 if [ "${isGit}" == 0 ];then
+	echo
 	echo "The install directory is git."
-else [ "${isGit}" == 0]; then
+else
 	echo
 	echo "Directory at '${defaultInstallRoot}' not a git repo, please debug!"
 	exit "${isGit}"
