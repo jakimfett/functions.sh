@@ -12,16 +12,17 @@
 # wherever she may be.
 
 # Share commands with sibling shells
-export HISTSIZE=
-export HISTFILESIZE=
-shopt -s histappend
-shopt -s expand_aliases
-export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
+export HISTSIZE=							# <-- disable size-based trimming of history file.  
+export HISTFILESIZE=							# <-- same as above, just in a different place.  
+shopt -s histappend							# <-- append to the history file sooner than later.  
+shopt -s expand_aliases					# <-- expand aliases into the alias'd commands, useful for opsec and reverse-engineering of your own crufty stuff.  
+export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"							# <~~ unsure what this one does, exactly. @todo look this up.
 
 # Keep the frequent tools close at hand
-alias rba='source ~/.bash_aliases && sleep 3'
-alias rlp='source ~/.profile && sleep 3'
-alias frl='echo "reloading everything...";rba && echo "aliases reloaded" && rlp && echo "profile reloaded"'
+alias prl='source "$(realpath ~/.profile)"; sleep 1'							# <-- testing to see if a shorter delay causes problems. @todo premature optimization.  
+alias rba='source ~/.bash_aliases && sleep 3'							# <-- why is there a delay here? @todo research.  
+alias rlp='source ~/.profile && sleep 3'							# <-- same as preceeding line, delayed command?  
+alias frl='echo "reloading everything...";rba && echo "aliases reloaded" && rlp && echo "profile reloaded"'							# <~~ this stack is just about the height for it to start falling over. @todo functionize?  
 alias eba='nano ~/.bash_aliases'
 alias rbt='( sleep 5 ; reboot ) & logout'
 alias sd='shutdown -hP now'
@@ -35,7 +36,8 @@ export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx
 alias ll='ls $LS_OPTIONS -lah'
 
 # Project Locations
-alias fsh='cd ~/functions.sh'
+alias fsh='cd "$(realpath ~/functions.sh)"'
+aloas fdv='cd "$(realpath ~/f.sh)"'
 
 # Always know *when* you are.
 dateTimeFormat='+%Y.%m.%d_%R.%S_(UTC%z,%Z)'
@@ -52,8 +54,11 @@ alias usbScan='chronoStamp && lsusb && echo'
 # Know how you connect to the world outside your network ports.
 alias getPublicAddress='curl icanhazip.com'
 
-# Do more than one thing at once.
-alias twm='dtach -A ~/session/default -r winch dvtm'
+# Do things in more than one place at once.								# <-- summary
+alias twm='dtach -A ~/session/default -r winch dvtm'			# <-- command
+# Multitasking is an essential part of a broken workflow.	# <-- philosophy
+# Do one thing at a time via multiple viewports.
+# The terminal windows are portals to different parts of the machine.
 
 # Fix mosh, because.
 export PATH=/usr/local/bin:$PATH
