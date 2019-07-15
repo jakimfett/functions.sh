@@ -1,0 +1,15 @@
+# a running todo list for the mikrotik router(s)
+ssh certificate authentication
+
+via SSH:
+disable non-ssh administration (free up memory)
+underclock?
+
+set up wifi network connect
+setup ethX/wlanX bridging
+
+port forwarding for ssh & https (request-based?)
+
+ipv6!
+
+
