@@ -37,7 +37,7 @@ alias ll='ls $LS_OPTIONS -lah'
 
 # Project Locations
 alias fsh='cd "$(realpath ~/functions.sh)"'
-aloas fdv='cd "$(realpath ~/f.sh)"'
+alias fdv='cd "$(realpath ~/f.sh)"'
 
 # Always know *when* you are.
 dateTimeFormat='+%Y.%m.%d_%R.%S_(UTC%z,%Z)'
