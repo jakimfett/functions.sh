@@ -32,7 +32,7 @@
 
 # some prerequisites
 # @todo autoinstall, or autocompile?
-declare depList=('git' 'ssh' 'rsync' 'mlocate' )
+declare depList=('git' 'ssh' 'rsync' 'mlocate' 'traceroute' 'traceroute6' 'dig')
 declare depListDev=('man-db' 'etckeeper')
 declare -A missingDep
 declare -A autoInstall=('man-db')
