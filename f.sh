@@ -1,18 +1,26 @@
-#!/usr/local/bin/bash
+# !/bin/bash
 # @author: @jakimfett
 # @description: minimalism, sorta
 # @goal: satisfy mel's curiousity
 # @practice: never do anything for just one reason
-# @advice: when stuck, do something functionally frivelous, but long term strategic additionally
+# @advice: when stuck, do something functionally/tactically frivelous with long term strategic benefit.
 # @link: https://en.wikipedia.org/wiki/The_Story_of_Mel
 # @addendum: http://archive.is/jDFuO
+#
+# @todo double check input sanitization#
+# @todo (better)feature flags mebbe?
+# @todo load functions.sh if it exists on the system
+# @todo loop user input bits until valid/exit path found
+# @todo command line params for config bits
+# @todo split actual install into install.sh, obviously
 
 ###
 # Author's comment (2018.07.14.2119.gmt.gregorian):
 # this is a *very* dangerous tool
-# educating yourself mitigates the (karmic) stupid tax
+# educating yourself mitigates the (karmic) stupidity tax
 # remove the following line(s) from execution to violate (some|all) warrenties
 #exit 1
+
 ###
 # hey
 # --- # --- # --- # --- #
@@ -21,6 +29,14 @@
 # huh. that's odd.
 # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
 
+
+# some prerequisites
+# @todo autoinstall, or autocompile?
+declare depList=('git' 'ssh' 'rsync' 'mlocate' 'traceroute' 'traceroute6' 'dig')
+declare depListDev=('man-db' 'etckeeper')
+declare -A missingDep
+declare -A autoInstall=('man-db')
+declare -A autoCompile=('capn-proto')
 
 
 # configuration values
@@ -34,7 +50,7 @@ declare -A config['start']="$(date +%s)"
 config['installTo']="$(realpath ~/)/functions.sh/"
 config['invokedFrom']="$(pwd)"
 config['self']="${config['invokedFrom']}${0:1:${#0}}"
-config['repo']="ssh://git@github.com/jakimfett/functions.sh.git"
+config['repo']="https://git.functions.sh"
 config['branch']="development"
 # done with configuration values
 
@@ -42,15 +58,27 @@ config['branch']="development"
 declare -A stateVar
 
 # zero is a decent stand-in for a boolean false, right?
-stateVar['depsPresent']=0
+# feature/state flags, zero is good?
+# I bet most of these could be pre-filled with some one-liners...hmm... @todo
+stateVar['missingDep']=0
+stateVar['installDirExists']=0
+stateVar['installDirEmpty']=0
+stateVar['installDirHasGit']=0
+stateVar['installDirCluttered']=0
+
 stateVar['emptyDir']=0
-stateVar['gitRemote']=0
+stateVar['clutteredDir']=0
 stateVar['isGit']=0
+stateVar['gitRemote']=0
 stateVar['doInstall']=0
 
 # determine if the user can sudo
 sudoer=$(sudo -n -v 2>&1)
-if [[ "${sudoer}" == *"password is required"* ]];then
+if [[ "${sudoer}" == *"may not run sudo"* ]];then
+	stateVar['sudoer']=0
+elif [[ "${sudoer}" == *"password is required"* ]];then
+	stateVar['sudoer']=1
+elif [[ "${sudoer}" == '' ]];then
 	stateVar['sudoer']=1
 else
 	stateVar['sudoer']=0
@@ -64,22 +92,16 @@ exits['done']=0
 exits['general']=1
 exits['dependency']=2
 exits['permissions']=3
+exits['debug']=4
+exits['failmuffins']=5
+exits['userInput']=6
+exits['aog']=7
 # done with exit codes
 
 
 
-# prerequisites
-declare depList=('git' 'ssh' 'rsync' )
-declare -A missingDep
-# --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
-# mmmm...poetry.
-# --- # --- # --- # --- # --- # --- # --- #
-# something else that is a lot like life.
-# --- # --- # --- # --- #
 
-
-
-echo
+echo "Prerequisites check, hold plz..."
 # iterate through the dependencies list
 # check that the system knows that they exist
 for singleDep in ${depList[@]}; do
@@ -91,105 +113,228 @@ for singleDep in ${depList[@]}; do
 	# add an entry to the missing dependencies array
 	# if the dependency location query to the system returns empty
 	if [ ! "${depLoc}" ];then
-		echo
-		echo "dependency '${singleDep}' not located..."
-		missingDep["${singleDep}"]=0
-	else
-		echo "found ${singleDep} at ${depLoc}"
+
+		echo "Sudoer var: ${stateVar['sudoer']} "
+
+		if [ ${stateVar['sudoer']} == 0 ]; then
+			missingDep["${singleDep}"]=1
+			# increment the missingDep counter
+			stateVar['missingDep']=$((${stateVar['missingDep']}+1))
+
+		elif [ ${stateVar['sudoer']} == 1 ]; then
+			# install things, hope you're running a debian variant...
+			echo "dependency missing:"
+			# @todo install all dependencies at the end if any are missing
+			# feature flags for use of dependencies that are missing after prereq check
+			echo "${singleDep}"
+			echo
+			echo "Attempting to install..."
+			sudo apt install "${singleDep}" -y
+		else
+			echo "failmuffins"
+			exit ${exits['failmuffins']}
+		fi
+	#else
+		# @debug @todo re-add the logthis function, super useful
+		#echo "found ${singleDep} at ${depLoc}"
 	fi
 
-done;echo
+done
 
-
-
-# fail early, fail often
-if [ ! "${!missingDep[@]}" == '' ];then
-	echo
-	echo "error running script."
-	echo "missing: ${!missingDep[@]}"
-	echo "Please install dependencies to continue."
-	echo
-	echo "failmuffins"
-	exit ${exits['dependency']}
-else
-	echo "all dependencies found.";echo
-fi
-# done with prerequisites
-echo ${config['installTo']}
-
-# load functions.sh if it exists on the system
+# check if our installation directory exists,
+# then verify the state if so
 if [ -d "${config['installTo']}" ];then
+	# directory exists
+	stateVar['installDirExists']=1
 
-	if [ ! "$(ls -A ~/functions.sh)" ];then
-		stateVar['emptyDir']=1
+	# check for directory status and set state variables
+	if [ -d "${config['installTo']}/.git/" ]; then
+		stateVar['installDirHasGit']=1
+	elif [ "$(ls -A ${config['installTo']})" ]; then
+		stateVar['installDirCluttered']=1
+	else
+		stateVar['installDirEmpty']=1 # double negatives are as good as single negatives
 	fi
-
 fi
 
 
+# --- # --- # --- # --- # --- # --- # --- # --- # --- # --- # --- #
+# mmmm...poetry.
+# --- # --- # --- # --- # --- # --- # --- #
+# something else that is a lot like life.
+# --- # --- # --- # --- #
+
+# @todo uncomment for visual streamlining
 # clear
+
 echo "#=-              welcome to f.sh                  -=#"
 echo
+echo "#=-                                               -=#"
 echo "#=- this script manages your local 'functions.sh' -=#"
 echo "#=-                                               -=#"
 echo "#=-                                               -=#"
 echo
 
-if [ ${stateVar['isGit']} == 1 ];then
-	echo "#=- a git repository exists at ~/functions.sh     -=#"
+if [ ! ${stateVar['missingDep']} == 0 ]; then
+	echo "#=-                                               -=#"
+	echo "#=-             error running script.             -=#"
+	echo "#=-           missing dependenc(y|ies):           -=#"
+	echo "total - ${stateVar['missingDep']}"
+	echo "		${!missingDep[@]}"
+	echo "#=-                                               -=#"
+	echo "#=- Please install dependencies to continue, eg:  -=#"
+	# help out the end user when possible by spitting out the remedial commands.
+	echo "		apt install ${!missingDep[@]}"
+	echo "#=-                                               -=#"
+	exit ${exits['dependency']}
+else
+	echo "#=-        ...all dependencies found...           -=#"
+	echo "#=-                                               -=#"
+fi
+
+# @todo - this logic needs streamlined a bit
+# currently checks if empty dir, then git dir, then non-git stuffs.
+if [ ${stateVar['installDirExists']} == 0 ]; then
+
+	echo "#=-                                               -=#"
+	echo
+	ls -lah "${config['installTo']}"
+	echo
+	echo "#=-         Install directory nonexistent:        -=#"
+	echo "#=-           Create install directory?           -=#"
+	echo "#=-                  (y/n/?):                     -=#"
+	declare rawInput
+	read -p 'input -->               ' rawInput
+
+	case "${rawInput}" in
+		[yY]|[yY][eE][sS]) # case-insensitive match for 'y' or 'yes'
+			echo "#=-                                               -=#"
+			echo "#=-    Positive answer, creating directory...     -=#"
+			mkdir -p "${config['installTo']}"
+
+			if [ ! -d "${config['installTo']}" ]; then
+				echo "#=-                                               -=#"
+				echo "#=-          Directory creation failed,           -=#"
+				echo "#=-       please debug/set permissions for        -=#"
+				echo "#=-            your install location              -=#"
+				echo "#=-                and try again.                 -=#"
+				echo "#=-                                               -=#"
+				echo "		debug: 	ls -lah ${config['installTo']}"
+				echo "#=-                   and/or                      -=#"
+				echo "		set: 	chmod u+x ${config['installTo']}"
+				echo "#=-                                               -=#"
+				echo "#=-                                               -=#"
+				echo "#=-                program exits                  -=#"
+				echo
+				exit ${exits['permissions']}
+			else
+				stateVar['installDirExists']=1
+				echo "#=-              Directory created.               -=#"
+				echo "#=-                                               -=#"
+			fi
+
+		;;
+		[nN]|[nN][oO])
+			echo "#=-            Not creating directory.            -=#"
+			# @todo add cache/tmp run location option?
+			echo "#=-                                               -=#"
+			echo "#=-                program exits                  -=#"
+			exit ${exits['userInput']}
+
+		;;
+		*)
+			echo "Write in option, shiney."
+			exit ${exits['userInput']}
+		;;
+	esac
+	unset rawInput # collect yer garbage
+
+else
+	echo "#=-       ...install directory found...           -=#"
+	echo "#=-                                               -=#"
+fi
+
+
+echo "#=-        ...checking for git repo...            -=#"
+echo "#=-                                               -=#"
+
+if [ ! ${stateVar['installDirHasGit']} == 0 ]; then
+	echo "#=- a repository exists at the install location   -=#"
+	git status ${config['installTo']}
+	echo "#=-                                               -=#"
 	echo "#=- would you like to attempt to update this      -=#"
 	echo "#=- existing installation?                        -=#"
+	echo "#=-                  (y/n/?):                     -=#"
+	declare rawInput
+	read -p 'input -->               ' rawInput
 
-	declare userInput
-	# solicite the user for some feedback
-	read "#=-                                       (y/n/?) -=#" userInput
+	case "${rawInput}" in
+		[yY]|[yY][eE][sS]) # case-insensitive match for 'y' or 'yes'
+			echo "#=-                                               -=#"
+			echo "#=-    Positive answer, attempting to update...   -=#"
+			# git remote -v
+			# grep "upstream==$repoURL"
+			# git add/set upstream?
+			# git fetch
+			# echo git merge upstream $branch
+
+		;;
+		[nN]|[nN][oO])
+			echo "#=-                Not updating.                  -=#"
+			echo "#=-                                               -=#"
+			echo "#=-                program exits                  -=#"
+			exit ${exits['userInput']}
+
+		;;
+		*)
+			echo "Write in option, shiney."
+			exit ${exits['userInput']}
+		;;
+	esac
+	unset rawInput
 
 else
 
-	echo "#=- there is no current installation, install?    -=#"
+	echo "#=-     no git repo at target install location.   -=#"
 	echo "#=-                                               -=#"
-	echo "#=-                 (y/n/?)                       -=#"
+fi
+
+if [ ! ${stateVar['installDirCluttered']} == 0 ]; then
+	# something lives here, but it's not us.
+
+	echo "#=-  Misc files exist in target install location: -=#"
+	ls -lah ${stateVar['installTo']}
+	echo "#=-                                               -=#"
+	echo "#=-             Please resolve.                   -=#"
+
+	echo
+	exit ${exits['failmuffins']}
+else
+	echo "#=-          install directory empty.             -=#"
+	echo "#=-                                               -=#"
+fi
 
 
+
+if [ ${stateVar['installDirCluttered']} == 0 ] \
+	&& [ ${stateVar['installDirHasGit']} == 0 ] \
+	&& [ ! ${stateVar['installDirExists']} == 0 ]; then
+	echo "#=-                                               -=#"
+	echo "#=-      ...functions.sh not found, install?      -=#"
+
+	# solicite the user for some feedback
+	# @todo functionize this (again)
+	echo "#=-                  (y/n/?):                     -=#"
 	declare rawInput
-	read -p "#=-                    " rawInput
+	read -p 'input -->               ' rawInput
+
 
 	case "${rawInput}" in
-		[yY])
+		[yY]|[yY][eE][sS])
 			stateVar['doInstall']=1
-			echo "#=-                                               -=#"
 
-			mkdir -p "${config['installTo']}"
-			cd "${config['installTo']}"
-
-			# check if remote repo is accessible
-			# all we need is the exit code, so any output is sent to /dev/null
-			git ls-remote --exit-code -h "${config['repo']}" > /dev/null 2>&1
-
-			if [ "$?" == 0 ];then
-				echo "#=-                                               -=#"
-				echo "#=- Remote repo exists, attempting to clone...    -=#"
-
-				# double check that we're in the installation directory
-				if [ "$(pwd)/" == "${config['installTo']}" ];then
-					git clone --single-branch -b "${config['branch']}" "${config['repo']}" .
-					if [ "$?" == 0 ];then
-						echo "#=-                                               -=#"
-						echo "#=- initialized git repository...                 -=#"
-					else
-
-						echo "#=-                                               -=#"
-						echo "#=-                 failmuffins                   -=#"
-					fi
-				fi
-			else
-				echo "#=-                                               -=#"
-				echo "#=- remote repository not found, cannot install   -=#"
-				echo "#=-                                               -=#"
-
-			fi
 		;;
-		[nN])
+		[nN]|[nN][oO])
 			echo "#=-                                               -=#"
 			echo "#=- script will now exit                          -=#"
 			echo "#=-                                               -=#"
@@ -201,14 +346,80 @@ else
 		;;
 	esac
 	unset rawInput
+
+	if [ ! ${stateVar['doInstall']} == 0 ]; then
+		echo "#=-                                               -=#"
+
+		if [ ! -d "${config['installTo']}" ]; then
+			# yes, in theory we created this earlier.
+			# double checking tho.
+			mkdir -p "${config['installTo']}"
+		fi
+
+		# move to the install location so we can locally reference things
+		cd "${config['installTo']}"
+		echo "#=-                                               -=#"
+		echo
+		echo "Pinging remote repo: '${config['repo']}'"
+		echo
+		echo "#=-                                               -=#"
+		# check if remote repo is accessible
+		# all we need is the exit code, so any output is sent to /dev/null
+		git ls-remote --exit-code -h "${config['repo']}" > /dev/null 2>&1
+
+		if [ "$?" == 0 ];then
+			echo "#=-                                               -=#"
+			echo "#=- Remote repo exists, attempting to clone...    -=#"
+			echo "#=-                                               -=#"
+
+			# double check that we're in the installation directory
+			if [ "$(pwd)/" == "${config['installTo']}" ];then
+				echo
+				git clone --single-branch -b "${config['branch']}" "${config['repo']}" "${config['installTo']}"
+				echo
+				git status "${config['installTo']}"
+				echo
+				if [ "$?" == 0 ];then
+					echo "#=-                                               -=#"
+					echo "#=-        initialized git repository.            -=#"
+				else
+
+					echo "#=-                                               -=#"
+					echo "#=-                 failmuffins                   -=#"
+				fi
+			fi
+		else
+			echo "#=-                                               -=#"
+			echo "#=- remote repository not found, cannot install   -=#"
+			echo "#=-                                               -=#"
+
+		fi
+	else
+		echo "not installing"
+	fi
+else
+	echo
+	echo
+	echo "...something went wrong, plz debug:"
+	echo
+	echo "path: '${config['installTo']}'"
+	echo
+	ls -lah "${config['installTo']}"
+	echo
+	git status "${config['installTo']}"
+	echo
+	exit ${exits['failmuffins']}
 fi
 
 
+echo we got here
+exit 5
 
-exit 13
+
+
+
 
 # mobility, finally!
-mkdir -p "${config['installTo']}"
 cd "${config['installTo']}"
 ls -lah
 
@@ -250,6 +461,9 @@ declare -a saneParam
 declare -A doneList
 
 function cleanUp {
+	# @todo remove dependencies (if any were installed?)
+	# if [missingdeplist > 0 ];then
+	# 	sudo apt purge -y
 	config['end']="$(date +%s)"
 	echo
 	echo "runtime: $(expr ${config['start']} - ${config['end']})"

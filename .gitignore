@@ -6,6 +6,9 @@ logs
 logs/*
 tmp
 tmp/*
+*.swp
 
+# Ignore configuration file(s)
+*.config
 # OSX cleanup
 .DS_Store

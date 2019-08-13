@@ -6,7 +6,7 @@
 declare -A config stateVar doneList
 
 
-config['dictPath']='dict/names.list'
+config['dictPath']="`dirname \"$0\"`/dict/names.list"
 config['dictSize']=`wc -l "${config['dictPath']}" | awk '{print $1}'`
 
 if [ $1 ];then
