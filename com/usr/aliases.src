@@ -79,3 +79,5 @@ alias syncfiles='rsync -rvhcO --progress'
 # making git less obtuse
 alias gst='git status'
 
+# attempt to discover what stuff was installed by the user, vs autoinstalled
+alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
