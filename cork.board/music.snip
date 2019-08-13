@@ -1,0 +1,37 @@
+echo
+echo "this script voids warrenties"
+echo
+echo "this one needs admin perms, gotta cough up some credentials, pal."
+if [  ];then
+
+# requires sudo
+function spotifyInstall {
+  # ref https://www.spotify.com/us/download/linux/
+
+  # 1. Add the Spotify repository signing keys to be able to verify downloaded packages
+  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
+
+  # 2. Add the Spotify repository
+  echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list
+
+  # 3. Update list of available packages
+  sudo apt-get update
+
+  # 4. Install Spotify
+  sudo apt-get install spotify-client
+}
+
+# a good programmer looks both ways before crossing a one-way street.
+# # #
+# one never knows when deity might decide to stress-test your local matrix
+# #
+# wouldn't want to end things before their due time
+
+if [ -d /etc/apt/sources.list.d/ ]; then
+  echo "clever girl."
+
+else
+  echo "life without music is death in dulcet tones."
+  echo "ennui"
+  exit 13
+fi
