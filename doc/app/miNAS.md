@@ -338,6 +338,8 @@ Grab a cup of tea (you can make one, there's enough time), and prepare for bring
 This would be a good time to hydrate, locate the hardware you're bringing online, and stage it with the adapter you'll be using to power it.  
 Mine is a shiney new RasPi 3b, and I'll be plugging it in next to my workhorse server, the converted Mac Mini.
 > The v8 arm stuffs needs `arm_control=0x200` in the config.txt to enable/unlock it?
+> Adding a /boot/ssh file will enable the builtin ssh server?
+
 
 ```
 root@nomad:~/dl# dd bs=4M if=/dev/zero of=/dev/sda status=progress oflag=sync  
