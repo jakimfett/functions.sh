@@ -3,6 +3,7 @@
 
 ## runninglist
 @todo - set up laminar artifact downloading
+@todo - script to move all non-tracked files out of f.sh before killing a checkout completely
 @todo - dependency list
 @todo - build os switcher sed -i implmementation for the #!/path/to/bash line
 @todo - ...compile bash itself?
