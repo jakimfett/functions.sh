@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/bash
 # @author:'jakimfett'
 # @license;'cc-by-sa'
 
