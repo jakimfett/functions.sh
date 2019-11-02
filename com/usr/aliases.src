@@ -67,6 +67,9 @@ alias twm='dtach -A ~/session/default.$(date +"%s") -r winch dvtm'
 # Fix mosh, because.
 export PATH=/usr/local/bin:$PATH
 
+# Useful SSH-adjacent aliases
+alias ssh-showkey='ssh-keygen -lf <(ssh-keyscan localhost 2>/dev/null)'
+
 # set rm/cp/mv to interactive mode:
 alias rm='rm -i'
 alias cp='cp -i'
