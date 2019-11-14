@@ -76,8 +76,8 @@ alias mv='mv -i'
 
 # Debian sysadmin alias(es)
 alias update="sudo apt update; sudo apt install -f -y; sudo apt autoremove -y"
-alias uprepair="update; sudo apt install --fix-broken; sudo apt install --fix-missing;"
-alias upgrade="update; sudo apt dist-upgrade -y;uprepair;"
+alias uprepair="update; sudo apt install --fix-broken; sudo apt install --fix-missing"
+alias upgrade="update; sudo apt dist-upgrade -y;uprepair"
 alias shutgrade="upgrade; sudo shutdown -hP now"
 alias regrade="upgrade; sudo reboot now"
 
