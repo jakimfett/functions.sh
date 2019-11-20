@@ -2,14 +2,14 @@
 Several shell scripts stacked on top of eachother, attempting to be useful.
 
 # assumptions
-You solemnly swear you're up to no good.
-You understand that this is a work in progress.
-I use this on my production systems.
+You solemnly swear you're up to no good.  
+You understand that this is a work in progress.  
+I use this on my production systems.  
 If you don't understand this codebase thoroughly, don't use it on live.
 
 # disclaimer
-Shell scripts are dangerous.
-This one moreso than some.
+Shell scripts are dangerous.  
+This one moreso than some.  
 If you break something with a borrowed tool, that's on you.
 
 This particular set of scripts is optimized for use inside the Bourne-Again shell v4.x (and above) on a 2019-current-ish Debian/Raspbian system, in a homelab.
