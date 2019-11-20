@@ -4,8 +4,7 @@ Several shell scripts stacked on top of eachother, attempting to be useful.
 # assumptions
 You solemnly swear you're up to no good.  
 You understand that this is a work in progress.  
-I use this on my production systems.  
-If you don't understand this codebase thoroughly, don't use it on live.
+You will understand what something does before executing it.
 
 # disclaimer
 Shell scripts are dangerous.  
