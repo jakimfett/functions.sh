@@ -1,1 +1,13 @@
-# folder structure marker, file must exist
+# elsewhere than the docs, a .gitignore file is often used to preserve
+# folder structure in version control
+#
+# @author: jakimfett
+# @purpose: establish a working folder structure
+# @license: tbd, all rights reserved
+#
+# @description:;
+# This version controlled textfile ensures that cloning the repository
+# results in a folder structure correct for immediate use.
+# Additionally, this documentation file demonstrates some autodoc features.
+#
+# @tldr: folder structure marker, file must exist

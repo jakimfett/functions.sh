@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "You are not ready"
+exit 1
+sudo -v
+sudo dd if=/dev/zero of=~/test1.file bs=1048576 count=2048 &

@@ -1,12 +1,14 @@
+# A running list of todo items
+...that apply to more than just a single file.
+
 # format
 @todo - <entry>
 
-# A running list of todo items
-...that are more applicable than just a single file.
 
-## runninglist
 @todo - fix osx failure to tab-complete, maybe just burn down the OS and start over (again)?
-
+@todo - combine program structure and documentation
+@todo - create a newline automatic repeat for '@todo - '
+@todo - definitions. ugh.
 @todo - set up laminar artifact downloading
 @todo - script to move all non-tracked files out of f.sh before killing a checkout completely
 @todo - dependency list
@@ -19,3 +21,4 @@
 @todo - breakfast, also vits&tea
 @todo - write script to autoreplace WAN links with archive.is and internetarchive links, with generation/curlhash/httpcodeverification.
 @todo - add kanban.bash to install process/prerequisites (https://github.com/coderofsalvation/kanban.bash)
+@todo - programmatically display included & sourced files for current shell, along with $PATH and other environment variables.

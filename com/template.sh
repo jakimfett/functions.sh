@@ -1,6 +1,6 @@
 #!/bin/bash
 # @author:'`whoami`'
-# @license;'cc-by-sa'
+# @license: 'cc-by-sa'
 #
 # Meta script that tries to write itself, and sometimes the universe.
 
