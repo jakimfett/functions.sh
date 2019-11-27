@@ -35,18 +35,21 @@ else
 	echo "Please place your api key in a file at '${config['keyfile']}' and try again."
 fi
 
-# Site structure defined in example.site, see com/net/example.site
-config['site']="$(realpath ~/conf/example.site)"
+echo $(realpath ${BASH_SOURCE[0]})
+exit 13
 
-if [ ! -f ${config['site']} ];then
-	echo;
-	echo "sourcing site config file..."
-	source "${config['site']}"
-else
+# Site structure defined in example.site, see com/net/example.site
+config['site']="$(realpath ./conf/example.site)"
+
+if [ ${#config['site']} -eq 0 ];then
 	echo;
 	echo "Could not locate site source file, please create!"
 	echo;
 	exit 1;
+else
+	echo;
+	echo "sourcing site config file..."
+	source "${config['site']}"
 fi
 
 exit 13
