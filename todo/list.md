@@ -1,7 +1,12 @@
+# format
+@todo - <entry>
+
 # A running list of todo items
 ...that are more applicable than just a single file.
 
 ## runninglist
+@todo - fix osx failure to tab-complete, maybe just burn down the OS and start over (again)?
+
 @todo - set up laminar artifact downloading
 @todo - script to move all non-tracked files out of f.sh before killing a checkout completely
 @todo - dependency list
