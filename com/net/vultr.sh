@@ -36,9 +36,9 @@ else
 fi
 
 # Site structure defined in example.site, see com/net/example.site
-config['site']="$(realpath ~/example.site)"
+config['site']="$(realpath ~/conf/example.site)"
 
-if [ -f ${config['site']} ];then
+if [ ! -f ${config['site']} ];then
 	echo;
 	echo "sourcing site config file..."
 	source "${config['site']}"
