@@ -10,8 +10,31 @@ declare -A config stateVar
 config['domain']='rheos.one'
 
 # The vultr api key location, dumped into a variable for later use
-config['key']="$(cat ~/.ssh/vultr.api.key)"
+config['keyfile']=$(realpath ~/.ssh/vultr.api.key)
 
+if [ -f ${config['keyfile']} ];then
+	# once we've verified that the keyfile exists
+	# get the contents of the keyfile
+	config['key']="$(cat ${config['keyfile']})"
+
+	if [ ${#config['key']} -ne 36 ];then
+		echo "api key wrong length, program will exit"
+		exit 1
+		# @todo ask the user for their api key, place in file defined as ${config['key']} and proceed
+	else
+		echo; #<-- when echoing for a newline, termination with a semicolon can be less ambiguous for future debugging.
+		echo "found vultr api key '${config['key']}', proceeding..."
+		echo;
+
+	fi
+else
+	echo "Please place your api key in a file at '${config['keyfile']}' and try again."
+fi
+
+exit 13
+
+# Using the changelog as our static page
+config['site']="$(realpath ~/project/rheos/changelog)"
 
 # Add the f.sh binaries folder by default
 export PATH="$(realpath ~/f.sh/bin):$(realpath ./):${PATH}:`pwd`";
