@@ -4,6 +4,10 @@
 #
 # Brings a bare server online with vultr.
 
+# @todo - functionality flagging
+# @todo - exit trapping, cleanup
+# @todo - user feedback and onlining decisions tree
+
 declare -A config stateVar
 
 # @todo - set this via config file or cli param
@@ -31,10 +35,23 @@ else
 	echo "Please place your api key in a file at '${config['keyfile']}' and try again."
 fi
 
+# Site structure defined in example.site, see com/net/example.site
+config['site']="$(realpath ~/example.site)"
+
+if [ -f ${config['site']} ];then
+	echo;
+	echo "sourcing site config file..."
+	source "${config['site']}"
+else
+	echo;
+	echo "Could not locate site source file, please create!"
+	echo;
+	exit 1;
+fi
+
 exit 13
 
-# Using the changelog as our static page
-config['site']="$(realpath ~/project/rheos/changelog)"
+
 
 # Add the f.sh binaries folder by default
 export PATH="$(realpath ~/f.sh/bin):$(realpath ./):${PATH}:`pwd`";
