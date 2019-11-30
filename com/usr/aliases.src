@@ -81,12 +81,6 @@ alias upgrade="update; sudo apt dist-upgrade -y;uprepair"
 alias shutgrade="upgrade; sudo shutdown -hP now"
 alias regrade="upgrade; sudo reboot now"
 
-# figuring out what is installed manually
-alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
-
-# figuring out what was installed manually
-alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
-
 # File sync stuffs
 alias syncfiles='rsync -rvhcO --progress'
 
