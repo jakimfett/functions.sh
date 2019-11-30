@@ -11,38 +11,40 @@
 # This one goes out to Nune,
 # wherever she may be.
 
-# Share commands with sibling shells
-export HISTSIZE=
-export HISTFILESIZE=
-shopt -s histappend
-shopt -s expand_aliases
-export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
+### Share commands with sibling shells ###
+export HISTSIZE=								# <-- disable size-based trimming of history file.
+export HISTFILESIZE=						# <-- same as above, just a different variable.
+shopt -s histappend							# <-- append to the history file sooner than later.
+shopt -s expand_aliases					# <-- expand aliases into the alias'd commands, useful for opsec and reverse-engineering of your own crufty stuff.
+export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"							# <~~ unsure what this one does, exactly. @todo look this up.
 
 # Keep the frequent tools close at hand
-alias rba='source ~/.bash_aliases && sleep 3'
-alias rlp='source ~/.profile && sleep 3'
-alias frl='echo "reloading everything...";rba && echo "aliases reloaded" && rlp && echo "profile reloaded"'
+alias prl='source "$(realpath ~/.profile)"; sleep 1'							# <-- testing to see if a shorter delay causes problems. @todo premature optimization.
+alias rba='source ~/.bash_aliases && sleep 1'							# <-- why is there a delay here? @todo research.
+alias rlp='source ~/.profile && sleep 1'							# <-- same as preceeding line, delayed command?
+alias frl='echo "reloading everything...";rba && echo "aliases reloaded" && rlp && echo "profile reloaded"'							# <~~ this stack is just about the height for it to start falling over. @todo functionize?
 alias eba='nano ~/.bash_aliases'
 alias rbt='( sleep 5 ; reboot ) & logout'
 alias sd='shutdown -hP now'
-alias nano="nano -w"
+alias nano="nano --nowrap --tabsize 2"
 alias gg='sudo su --login'
 alias lac='laminarc'
 
-# colorized ls:
+# colorized ls
 export CLICOLOR=1
 export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx
-alias ll='ls -lah'
+alias ll='ls $LS_OPTIONS -lah'
 
-# Project Locations
-alias fsh='cd ~/f.sh'
+### Project Locations ###
+alias fsh='cd "$(realpath ~/functions.sh)"'
+alias fdev='cd "$(realpath ~/f.sh)"'
 
-# Always know *when* you are.
+### Always know *when* you are. ###
 dateTimeFormat='+%Y.%m.%d_%R.%S_(UTC%z,%Z)'
 alias chronoStamp="date -j '${dateTimeFormat}'"
 alias chronoStampUTC="date -j -u '${dateTimeFormat}'"
 
-# Quality of Life shortcuts
+### Quality of Life shortcuts ###
 alias search='lynx https://start.duckduckgo.com'
 alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
 
@@ -52,11 +54,19 @@ alias usbScan='chronoStamp && lsusb && echo'
 # Know how you connect to the world outside your network ports.
 alias getPublicAddress='curl icanhazip.com'
 
-# Do more than one thing at once.
-alias twm='dtach -A ~/session/default -r winch dvtm'
 
-# Fix mosh, because.
-export PATH=/usr/local/bin:$PATH
+# Open a tileable, disconnectable window session.
+# Uses seconds since the unix epoc as the workspace differentiation postfix.
+# command fails if ~/session directory fails to exist, @todo check and remediate
+alias twm='dtach -A ~/session/default.$(date +"%s") -r winch dvtm'
+
+# Multitasking is an essential part of a broken workflow.	# <-- philosophy
+# Do one thing at a time via multiple viewports.
+# The terminal windows are portals to different parts of the machine.
+
+### Useful SSH-adjacent aliases ###
+# patchwork'd from https://unix.stackexchange.com/a/349821
+alias ssh-showkey='ssh-keygen -lf <(ssh-keyscan localhost 2>/dev/null)'
 
 # set rm/cp/mv to interactive mode:
 alias rm='rm -i'
@@ -66,9 +76,13 @@ alias mv='mv -i'
 
 # Debian sysadmin alias(es)
 alias update="sudo apt update; sudo apt install -f -y; sudo apt autoremove -y"
-alias upgrade="update; sudo apt dist-upgrade -y;"
-alias uprepair='update; sudo apt install --fix-broken; sudo apt install --fix-missing;'
-alias shutgrade='upgrade; sudo shutdown -hP now'
+alias uprepair="update; sudo apt install --fix-broken; sudo apt install --fix-missing"
+alias upgrade="update; sudo apt dist-upgrade -y;uprepair"
+alias shutgrade="upgrade; sudo shutdown -hP now"
+alias regrade="upgrade; sudo reboot now"
+
+# figuring out what is installed manually
+alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
 
 # figuring out what was installed manually
 alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
@@ -77,7 +91,7 @@ alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sor
 alias syncfiles='rsync -rvhcO --progress'
 
 # making git less obtuse
-alias gst='git status'
+alias gst='clear;echo;echo;echo "repository urls:";git remote -v;echo;git status;echo;echo;'
 
 # attempt to discover what stuff was installed by the user, vs autoinstalled
 alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"

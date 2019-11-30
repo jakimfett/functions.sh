@@ -6,6 +6,43 @@
 # usage: index.sh <folder>
 # Creates a sorted, cleaned index of files in a given directory.
 
+# What to index?
+projectName='functions.sh'
+cacheDir='cache'
+workingDir="$(pwd)"
+aliases="${workingDir}/com/usr/aliases.src"
+source "${aliases}"
+
+# okayso mlocate is a good thought, but the performance is poor and it's not always available.
+#
+# functions.sh is about minimalism, and removing a dependency would be nice,
+# especially at this point.
+
+# we have to assume there's an index.
+# and we are going to assume that there's occasionally more than one.
+# so reading a standardized multi-piece index is the first hurdle.
+#
+# let's start small
+
+# my intention:
+# read in all the indexes, output to a single file, after sorting and de-duplicating.
+# this was my first psuedo-code for it.
+# cat folder.dex.* >> "${cache}/index/${projectName}.${chronoStamp}.dex"; exit
+#
+# That didn't work, we need to locate where stuff is first.
+#
+# the -name flag for find seems relevant.
+echo "${workingDir}${cache}/index/${projectName}.$(chronoStamp).dex"
+echo "finding ${projectName}:"
+#find ~ -name "${projectName}" -type d 2>/dev/null
+
+
+#>> "${cache}/index/${projectName}.${chronoStamp}.dex"
+
+
+exit
+
+
 ########### Include functions ###########
 if [[ `find functions.sh 2>&1` == *"No such file"* ]];then echo "functions.sh not found, exiting";exit 1;fi
 clear; source "`dirname "$0"`/functions.sh"; when.sh;echo

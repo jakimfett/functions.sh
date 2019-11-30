@@ -1,10 +1,14 @@
 #!/bin/bash
 # @author:'`whoami`'
-# @license: 'cc-by-sa'
+# @license;'cc-by-sa'
 #
-# Meta script that tries to write itself, and sometimes the universe.
+# Bootstrap script to install a gitea repo on a system.
 
-#### This is the spec. Sorta. Modify it with caution and understanding. ####
+# files modified by this script:
+
+# where are you getting your code?
+repoSource='https://git.functions.sh/'
+# have you considered mirroring?
 
 # @function.desc
 # A description of the function, briefly.

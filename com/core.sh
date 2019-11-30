@@ -3,9 +3,12 @@
 # author: @jakimfett
 # license: cc-by-sa
 #
-# Common functions and utilities for Debian Linux shell scripts
+# Common functions and utilities for Debian-ish Linux shell scripts.
+# This is a dangerous toy, read carefully before using in your shop.
+# Test it in a copy of development, with your use case, first.
 
-
+# @todo - integrate instantiation with documentation, for conciseness and strong coupling.
+#
 # @TODO - Add auto update to scripts, with md5 verify.
 # @TODO - Refactor to use local variables whenever possible.
 # @TODO - Add usage examples for all scripts? (possibly autogenerate?)
@@ -24,8 +27,19 @@ if [ "$0" == "$BASH_SOURCE" ];then
     echo
     echo "Available (optional) variables:"
     echo -e "\t\$CHECKSUDO\tdefault is zero \t check for ability to run sudo commands if set to non-zero"
-    echo -e "\t\$LOGLEVEL\tdefault is two \t\t displays extra status/debug text if set to non-zero"
-    echo -e "\t\$DRYRUN\t\tdefault is zero \t prints output and check results, but doesn't actually write any values"
+
+# Check if VERBOSITY variable is instantiated before setting to zero
+if [ -z $VERBOSITY ];then
+	VERBOSITY=2
+    echo -e "\t\$VERBOSITY\tdefault is two \t\t severity filtering of status/debug text if non-zero, 9 being 'all'."
+fi
+
+# Default to protecting the user, ni?
+if [ -z $DRYRUN ];then
+	DRYRUN=1
+    echo -e "\t\$DRYRUN\t\tdefault is non-zero \t performs only non-destructive operations"
+fi
+
     echo -e "\t\$EXEC\t\tdefault is non-zero \t executes sanity checks before continuing, set to zero to disable"
     echo -e "\t\$INTERACTIVE\tdefault is zero \t displays yes/no interactive elements for the user if set to non-zero"
     echo
@@ -99,6 +113,7 @@ fi
 
 ########### Set pre-function flags ###########
 
+# pass in the 'help' flag if the core is run without arguments
 if [ -z "$*" ];then
   HELP=1
 fi
@@ -109,7 +124,10 @@ for i in "$@"; do
   case "$i" in
   --loglevel=[0-9]|-l=[0-9])
     # Displays help and usage info
-    LOGLEVEL=$(echo "${@}" | grep -o '[0-9]')
+	VERBOSITY=$(echo "$i" | grep -o '[0-9]')
+	echo "${VERBOSITY}"
+	exit
+    #LOGDISPLAY=$(echo "${@}" | grep -o '[0-9]')
     ;;
   --dry-run|--dry-run=true)
     # Displays help and usage info
@@ -119,22 +137,79 @@ for i in "$@"; do
     # Displays help and usage info
     DRYRUN=0
     ;;
-  --help|help|-h|h)
-    # Displays help and usage info
-    HELP=1
-    ;;
   --interactive|interactive|-i|i)
     # Execute all commands interactively
     INTERACTIVE=1
     ;;
-  *)
-    echo
+  --help|help|-h|h)|*)
+    echo "${@}"
+	echo
+    # Displays help and usage info
+    HELP=1
     ;;
   esac
 done
 
 ########### End pre-function flags ###########
 
+# possibly the most useful bit, right here: the `logThis` function.
+# It's a function that logs things conveniently.
+# This entire thing is functions, but this one is the function that started it all.
+
+
+# @logThis.desc
+# Text output handling for logging
+#
+# @logThis.syntax:
+# `logThis "Message"`
+# `logThis "Message" <int> <filepath>`
+#
+# @logThis.returns
+#	* standard
+#
+# @logThis.comment
+# 	Take time to refactor. Deprication is doable, and optimizing is important.
+function logThis {
+	# the passed-in message, from function usage, this is mandatory
+    local message="${1}" # @todo probably need to sanitize the message somehow.
+	if [ -z "${message}" ];then
+		echo "Message cannot be empty!"
+		return 6
+	else
+		# parameters 2+ are optional...
+	    local logging_level
+		local log_file
+
+	    # ...check if they're set, if not, set from globals
+	    if [ ! -z "${2}" ] ; then
+			# Set the log level (ideally) from the passed-in value...
+			logging_level="${2}"
+
+		elif [ ! -z "${config['logLevel']}" ] ; then # config is set, passin isn't.
+			# ...next from the script default...
+	        logging_level="${config['logLevel']}"
+
+	    else
+			# and finally, if the log level has no set default, use max verbosity
+	        logging_level=10
+	    fi
+
+
+
+	    if [ ! -z "${3}" ] ; then
+	        log_file="${3}"
+		else
+			log_file="${config['logFile']}"
+	    fi
+
+		local dateTimeNow=$(date +"${config['dateTimeFormat']}")
+	    if [ "${logging_level}" -le "${config['logLevel']}" ] ; then
+	        echo "${dateTimeNow}: ${message}" | tee -a ${log_file}
+		else
+			echo "${dateTimeNow}: ${message}" >> ${log_file}
+	    fi
+	fi
+}
 
 ########### Sanity Checks ###########
 
@@ -152,25 +227,15 @@ done
 #  echo $$ > $PIDFILE
 #fi
 
-# Check if LOGLEVEL variable is instantiated before setting to zero
-if [ -z $LOGLEVEL ];then
-  LOGLEVEL=2
-  if [ ! -z "${DEBUG}" ];then
-    LOGLEVEL="${DEBUG}"
-    echo
-    echo "Script uses DEBUG, which is deprecated. Please refactor."
-    echo
-  else
-    DEBUG="${LOGLEVEL}"
-  fi
-fi
 
 function cleanup {
+	# Ensure that child processes have finished before designating time of exit.
   wait
+
+  #  rm $PIDFILE
 
   logThis "Done." 1
 
-#  rm $PIDFILE
 }
 
 # On exit, do cleanup
@@ -300,6 +365,11 @@ function getUserInputYesNo {
   esac
 }
 
+
+function dateConvert {
+	date -j -f %s $1 +"${config['dateTimeFormat']}"
+}
+
 function enumGetter {
     # @todo - implement using force-case'd text input?
     logThis "function 'enumGetter' is not implemented!"
@@ -317,37 +387,7 @@ function logThis-deprecated_usage_needs_fixed {
     exit 1;
 }
 
-# @logThis.help
-# Text output handling for logging
-#
-# @logThis.syntax:
-# `logThis "Message"`
-# `logThis "Message" <int> <filepath>`
-#
-function logThis {
-    local message="${1}"
-    local logging_level="${2}"
 
-    # Failing early helps the program run faster
-    if [ -z "${2}" ] ; then
-        if [ ! -z "${LOGLEVEL}" ] ; then
-            logging_level="${LOGLEVEL}"
-        else
-            # @default.loglevel.hardcoded
-            logging_level=10
-        fi
-    fi
-
-    local file_name="${LOGFILE}"
-
-    if [ ! -z "${3}" ] ; then
-        file_name="${3}"
-    fi
-
-    if [ "${logging_level}" -le "${LOGLEVEL}" ] ; then
-        echo "`date +%Y-%m-%d_%H:%M.%S:` ${message}" | tee -a $file_name
-    fi
-}
 
 # @todo - implement
 function char2Int {
@@ -356,7 +396,7 @@ function char2Int {
 
 # Outputs a horizontal line to the logfile
 # Syntax is logHL LOGLEVEL(optional)
-function logHL {
+function logBreak {
   local logging_level=2
   if [ ! -z "${1}" ];then
     logging_level="${1}"
