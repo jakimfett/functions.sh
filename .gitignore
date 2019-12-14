@@ -20,3 +20,6 @@ tmp/*
 bin
 bin/*
 
+# Ignore calculated files
+*.sum
+*/*.sum
