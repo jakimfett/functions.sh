@@ -53,9 +53,14 @@ echo "Found current directory as:"
 echo "${currentDirectory}"
 echo "...done with found 'currentDirectory'."
 
-if [[ "$@" == *"--force"* ]]; then
-	echo "Hidden force install protocal enabled, overwriting default install location."
+if [[ "$@" == *"--destructive"* ]]; then
+	echo "Removing the default install location."
 	rm -rf "${defaultInstallRoot}"
+	# There's always some way for it to go wrong.
+	# an -rf in a script always garners a second look.
+	# It may be safe, but caution breeds frequent re-examination.
+	#
+	# But at some point, unwillingness to accept risk becomes a willingness to hold back.
 fi
 
 if [ -d "${defaultInstallRoot}" ]; then
@@ -63,7 +68,7 @@ if [ -d "${defaultInstallRoot}" ]; then
 		echo "Default install location exists, attempting to update."
 
 else
-	echo "...default install location is empty, creating..."
+	echo "...creating installation directory..."
 	mkdir -p "${defaultInstallRoot}"
 	echo "(exit code for directory creation was: '$?')"
 
