@@ -64,3 +64,10 @@ add interface=ether2-master
 /tool mac-server mac-winbox
 set [ find default=yes ] disabled=yes
 add interface=ether2-master
+
+
+example TCP port forward:
+ip firewall nat add action=dst-nat chain=dstnat comment="SSH port forwarding." disabled=no dst-port=22 in-interface=ether1 protocol=tcp to-addresses=172.16.0.10
+
+example UDP port forward:
+ip firewall nat add action=dst-nat chain=dstnat comment="Mosh port forwards." disabled=no dst-port=60000-61000 in-interface=ether1 protocol=udp to-addresses=172.16.0.10
