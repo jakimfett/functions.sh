@@ -47,6 +47,9 @@ alias chronoStampUTC="date -j -u '${dateTimeFormat}'"
 ### Quality of Life shortcuts ###
 alias search='lynx https://start.duckduckgo.com'
 alias pathadd='export PATH="$(realpath `pwd`):${PATH}"'
+alias micloop='pactl load-module module-loopback'
+alias micunloop='pactl unload-module module-loopback'
+alias kd='killall Discord;killall Discord;killall Discord;killall discord;'
 
 # Keep an eye on what's in your ports.
 alias usbScan='chronoStamp && lsusb && echo'
