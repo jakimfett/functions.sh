@@ -180,9 +180,9 @@ which isn't something that directly translates into the `/dev/sd#` format typica
 
 So, start by listing your devices with `ls /dev/`. You'll see something like this:
 ```
-autofs         cpu_dma_latency  gpiomem  loop0  loop-control      net                 ram1   ram3    raw   ...     
+autofs cpu_dma_latency  gpiomem  loop0  loop-control net ram1   ram3 raw   ...
 <snip>  
-...tty52  tty6   ttyAMA0  vc-mem     vcsa  vcsu   video10
+...tty52  tty6   ttyAMA0  vc-mem vcsa  vcsu   video10
 ```
 Lots of devices.  
 Some correspond to physical hardware, others are virtual, like the various `loop` interfaces.  
@@ -258,7 +258,7 @@ We're gonna make a copy of it, and then see if it's worth saving.
 Start with making sure you have enough space, but as we established earlier, the main disk 'mmcblk0' on our RasPiZero here is less than 4% used, we could keep around three copies if necessary.
 
 It's not, and here's the command:  
-`dd bs=2M if=/dev/sda of=./sdcard_backup.img status=progress oflag=sync`
+`dd bs=2M if=/dev/sda of=./sdcard_backup.img status=progress oflag=sync`  
 
 And now we wait for 32 gigs to transfer from an SD card slot to a different SD card slot, a space of perhaps five centimeters, and our speed-of-light bus is going to take several minutes to accomplish it.
 
@@ -272,21 +272,51 @@ Tech is magic.
 Sometimes magic takes time.  
 
 ```
-31914459136 bytes (32 GB, 30 GiB) copied, 4133.16 s, 7.7 MB/s
-15218+1 records in
-15218+1 records out
-31914983424 bytes (32 GB, 30 GiB) copied, 4133.46 s, 7.7 MB/s
+31914459136 bytes (32 GB, 30 GiB) copied, 4133.16 s, 7.7 MB/s  
+15218+1 records in  
+15218+1 records out  
+31914983424 bytes (32 GB, 30 GiB) copied, 4133.46 s, 7.7 MB/s  
 ```
 About 69 minutes, then.  
-Now to mount it locally.
+Now to mount it locally.  
+
+`mkdir ./sdcopy; mount -o ro,loop,offset="$(($(fdisk -l sdcard_backup.img | tail -1 | awk '{print $2}')*512))" ./sdcard_backup.img ./sdcopy`
+
+> Using `fdisk` to get the start offset of the disk, then awk and the shell builtin to accomplish block conversion to bytes.  
+> @todo - explain this part better
+
+
+```
+root@nomad:~/dl# ls -lah sdcopy  
+total 36K  
+drwxr-xr-x 2 root root  32K Dec 31  1969 .  
+drwxr-xr-x 4 root root 4.0K Jun 13 10:08 ..  
+root@nomad:~/dl# lsblk  
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT  
+loop0         7:0    0  29.7G  1 loop /root/dl/sdcopy  
+sda           8:0    1  29.7G  0 disk  
+└─sda1        8:1    1  29.7G  0 part  
+root@nomad:~/dl# df -h  
+Filesystem      Size  Used Avail Use% Mounted on  
+/dev/root       118G   33G   86G  28% /  
+/dev/loop0       30G   32K   30G   1% /root/dl/sdcopy  
+root@nomad:~/dl# umount ./sdcopy  
+```
+> The `umount <path>` command will remove the mount point, and allow you to remove the disk image if necessary.  
+
+My SD card is empty, so now we're going to unmount the image, remove the 32gb image file, and then wipe the physical card in prep for writing the Raspbian image.
 
 ###### failmuffins
 Sometimes, doing things remotely is problematic.  
 That's why terminal sessions can be direct, or locally hosted.  
 When a terminal session is locally hosted to the server in question,  
-when you lose connection, your session persists.
+when you lose connection, your session persists.  
 
-Combined with a tool such as `mosh`, your session (and the multi-threaded problem solving interface that lives in it) can survive a server being offlined.
+The combination of the `dtach` and `dvtm` tools gives us a fairly nice server-local work environment.  
+Check out the 'twm' command, and look through the commands in the man page for reference.  
+I generally run with a main terminal and two tertiary/monitoring panes.  
+
+Combined with a network interrupt mitigation tool such as `mosh`, your session (and the multi-threaded problem solving interface that lives in it) can survive a server being offlined.
 
 
 ###### dd=destroy_disk
@@ -295,7 +325,64 @@ Let's make sure it's actually empty.
 This is the part where **doing it wrong will destroy your disk**.  
 _(or at least all the data that might have been on it)_  
 
-`dd bs=4M if=/dev/zero of=/dev/sda status=progress oflag=sync`
+```
+root@nomad:~/dl# dd bs=4M if=/dev/zero of=/dev/sda status=progress oflag=sync
+683671552 bytes (684 MB, 652 MiB) copied, 56.3593 s, 12.1 MB/s
+```
+At 12 MB/s, a 32gb sdcard will take about forty minutes on our system, give or take ten.
+
+Grab a cup of tea (you can make one, there's enough time), and prepare for bringing a new system online.  
+This would be a good time to hydrate, locate the hardware you're bringing online, and stage it with the adapter you'll be using to power it.  
+Mine is a shiney new RasPi 3, and I'll be plugging it in next to my workhorse server, the converted Mac Mini.
+
+```
+root@nomad:~/dl# dd bs=4M if=/dev/zero of=/dev/sda status=progress oflag=sync  
+31914459136 bytes (32 GB, 30 GiB) copied, 2448.11 s, 13.0 MB/s  
+dd: error writing '/dev/sda': No space left on device  
+7610+0 records in  
+7609+0 records out  
+31914983424 bytes (32 GB, 30 GiB) copied, 2448.88 s, 13.0 MB/s  
+```
+
+Disc has been zero'd.  
+
+Now we write the downloaded image to the sd card.  
+
+```
+dd bs=2M if=./2019-04-08-raspbian-stretch-lite.img of=/dev/sda status=progress oflag=sync  
+root@nomad:~/dl/raspbian# dd bs=2M if=./2019-04-08-raspbian-stretch-lite.img of=/dev/sda status=progress oflag=sync
+192937984 bytes (193 MB, 184 MiB) copied, 20.0065 s, 9.6 MB/s
+```
+Once again, we wait.
+
+```
+root@nomad:~/dl/raspbian# dd bs=2M if=./2019-04-08-raspbian-stretch-lite.img of=/dev/sda status=progress oflag=sync1799356416 bytes (1.8 GB, 1.7 GiB) copied, 206.203 s, 8.7 MB/s
+860+0 records in
+860+0 records out
+1803550720 bytes (1.8 GB, 1.7 GiB) copied, 207.055 s, 8.7 MB/s
+```
+
+That took less time than expected.  
+Next, we mount the disk and see if we can add our hooks.  
+
+```
+mkdir ./sdmount;
+losetup --offset "$(($(fdisk -l /dev/sda | tail -2 | head -1 | awk '{print $2}')*512))" /dev/sdhc0 /dev/sda
+
+mount -o ro,loop,offset= /dev/sdhc0 ./sdmount
+```
+
+
+@todo.list:
+Link functions.sh
+checkout --> /usr/bin/src?
+link to PATH as `fsh`
+odot@
+
+copy pubkeys
+setup /etc repo & remote(s)
+Create bridge user?
+
 
 ###### Mounting
 Make sure you've got a place to put it:
@@ -350,6 +437,9 @@ That's a limitation for anything operating across the bus, which means the more 
 If I remember correctly, the network hardware is on that same bus, so writing an SD card while downloading an updated image via our p2p client might take a bit longer than expected.
 
 Let's check on our torrent.
+
+> I used `aria2c` (from the aria2 package) to download the torrent. For now, just obtain the image file.
+
 
 
 ###### The Write
@@ -485,3 +575,15 @@ https://ss64.com/bash/dd.html
 http://man7.org/linux/man-pages/man1/dd.1.html
 https://www.mail-archive.com/eug-lug@efn.org/msg12073.html
 https://www.raspberrypi.org/documentation/installation/installing-images/
+
+https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/
+https://linux.die.net/man/1/dvtm
+http://www.brain-dump.org/projects/dvtm/#devel
+https://www.digitalocean.com/community/tutorials/how-to-use-dvtm-and-dtach-as-a-terminal-window-manager-on-an-ubuntu-vps
+
+https://www.reddit.com/r/linux/comments/ngil2/dvtm_a_twm_for_the_console/c393krj/
+
+https://subbass.blogspot.com/2009/10/howto-sync-bash-history-between.html
+
+https://askubuntu.com/questions/29872/torrent-client-for-the-command-line
+https://medium.com/@jakobud/automatic-anonymous-bittorrent-downloading-using-a-raspberry-pi-b367a67de238
