@@ -1,0 +1,73 @@
+# jan/02/1970 00:24:59 by RouterOS 6.38.1
+# software id = V6J1-6BDA
+#
+/interface ethernet
+set [ find default-name=ether2 ] name=ether2-master
+set [ find default-name=ether3 ] master-port=ether2-master
+set [ find default-name=ether4 ] master-port=ether2-master
+set [ find default-name=ether5 ] master-port=ether2-master
+/ip neighbor discovery
+set ether1 discover=no
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/ip hotspot profile
+set [ find default=yes ] html-directory=flash/hotspot
+/ip pool
+add name=dhcp ranges=172.16.0.100-172.16.0.198
+/ip dhcp-server
+add address-pool=dhcp disabled=no interface=ether2-master name=defconf
+/ip address
+add address=172.16.0.1/24 comment=defconf interface=ether2-master network=\
+    172.16.0.0
+add address=198.15.4.183/24 interface=ether1 network=198.15.4.0
+/ip dhcp-client
+add comment=defconf dhcp-options=hostname,clientid interface=ether1
+/ip dhcp-server lease
+add address=172.16.0.10 mac-address=A8:20:66:12:2F:6F server=defconf
+/ip dhcp-server network
+add address=172.16.0.0/24 comment=defconf gateway=172.16.0.1 netmask=24
+/ip dns
+set allow-remote-requests=yes servers=198.15.0.2,1.0.0.1,8.8.8.8
+/ip dns static
+add address=172.16.0.1 name=router
+/ip firewall filter
+add action=accept chain=input comment="defconf: accept ICMP" protocol=icmp
+add action=accept chain=input comment="defconf: accept established,related" \
+    connection-state=established,related
+add action=drop chain=input comment="defconf: drop all from WAN" \
+    in-interface=ether1
+add action=fasttrack-connection chain=forward comment="defconf: fasttrack" \
+    connection-state=established,related
+add action=accept chain=forward comment="defconf: accept established,related" \
+    connection-state=established,related
+add action=drop chain=forward comment="defconf: drop invalid" \
+    connection-state=invalid
+add action=drop chain=forward comment=\
+    "defconf:  drop all from WAN not DSTNATed" connection-nat-state=!dstnat \
+    connection-state=new in-interface=ether1
+/ip firewall nat
+add action=masquerade chain=srcnat comment="defconf: masquerade" \
+    out-interface=ether1
+add action=dst-nat chain=dstnat comment="Badfruit Web - HTTPS" in-interface=\
+    ether1 protocol=tcp src-port=443 to-addresses=172.16.0.10 to-ports=443
+add action=dst-nat chain=dstnat in-interface=ether1 protocol=tcp src-port=80 \
+    to-addresses=172.16.0.10 to-ports=80
+/ip route
+add distance=1 gateway=198.15.4.1
+/system identity
+set name=Acolyte
+/system routerboard settings
+set cpu-frequency=600MHz silent-boot=yes
+/tool mac-server
+set [ find default=yes ] disabled=yes
+add interface=ether2-master
+/tool mac-server mac-winbox
+set [ find default=yes ] disabled=yes
+add interface=ether2-master
+
+
+example TCP port forward:
+ip firewall nat add action=dst-nat chain=dstnat comment="SSH port forwarding." disabled=no dst-port=22 in-interface=ether1 protocol=tcp to-addresses=172.16.0.10
+
+example UDP port forward:
+ip firewall nat add action=dst-nat chain=dstnat comment="Mosh port forwards." disabled=no dst-port=60000-61000 in-interface=ether1 protocol=udp to-addresses=172.16.0.10

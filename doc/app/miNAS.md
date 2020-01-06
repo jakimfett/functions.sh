@@ -283,7 +283,10 @@ Now to mount it locally.
 `mkdir ./sdcopy; mount -o ro,loop,offset="$(($(fdisk -l sdcard_backup.img | tail -1 | awk '{print $2}')*512))" ./sdcard_backup.img ./sdcopy`
 
 > Using `fdisk` to get the start offset of the disk, then awk and the shell builtin to accomplish block conversion to bytes.  
-> @todo - explain this part better
+> @todo - explain this part better  
+
+> On our system, the number '4194304' is equivalent to the function `$(($(fdisk -l /dev/sda | tail -2 | head -1 | awk '{print $2}')*512))`.  
+> Your mileage may vary.
 
 
 ```
@@ -333,7 +336,10 @@ At 12 MB/s, a 32gb sdcard will take about forty minutes on our system, give or t
 
 Grab a cup of tea (you can make one, there's enough time), and prepare for bringing a new system online.  
 This would be a good time to hydrate, locate the hardware you're bringing online, and stage it with the adapter you'll be using to power it.  
-Mine is a shiney new RasPi 3, and I'll be plugging it in next to my workhorse server, the converted Mac Mini.
+Mine is a shiney new RasPi 3b, and I'll be plugging it in next to my workhorse server, the converted Mac Mini.
+> The v8 arm stuffs needs `arm_control=0x200` in the config.txt to enable/unlock it?
+> Adding a /boot/ssh file will enable the builtin ssh server?
+
 
 ```
 root@nomad:~/dl# dd bs=4M if=/dev/zero of=/dev/sda status=progress oflag=sync  
@@ -366,10 +372,15 @@ That took less time than expected.
 Next, we mount the disk and see if we can add our hooks.  
 
 ```
-mkdir ./sdmount;
-losetup --offset "$(($(fdisk -l /dev/sda | tail -2 | head -1 | awk '{print $2}')*512))" /dev/sdhc0 /dev/sda
+mkdir ./boot ./root;
+mount -o rw /dev/sda1 ./boot
+touch ./boot/ssh # enables SSH on first boot
+nano boot/wpa_supplicant.conf
+mount -o rw /dev/sda2 ./root
+mkdir root/root/.ssh/authorized_keys
+chmod 600 root/root/.ssh/authorized_keys
+cat ~/.ssh/id_ed25519.pub > root/root/.ssh/authorized_keys
 
-mount -o ro,loop,offset= /dev/sdhc0 ./sdmount
 ```
 
 
@@ -525,9 +536,11 @@ https://www.raspberrypi-spy.co.uk/2012/09/checking-your-raspberry-pi-board-versi
 https://safetomatic.com/best-sd-card-for-raspberry-pi-3/  
 
 https://eltechs.com/raspberry-pi-nas-guide/  
+https://howtoraspberrypi.com/create-a-nas-with-your-raspberry-pi-and-samba/  
 
 https://libreelec.tv/downloads_new/raspberry-pi-3-3/
 
+https://www.raspberrypi.org/magpi/samba-file-server/
 https://www.howtogeek.com/139433/how-to-turn-a-raspberry-pi-into-a-low-power-network-storage-device/  
 
 https://manual.seafile.com/build_seafile/rpi.html  
@@ -587,3 +600,36 @@ https://subbass.blogspot.com/2009/10/howto-sync-bash-history-between.html
 
 https://askubuntu.com/questions/29872/torrent-client-for-the-command-line
 https://medium.com/@jakobud/automatic-anonymous-bittorrent-downloading-using-a-raspberry-pi-b367a67de238
+https://linux.die.net/man/8/losetup
+
+https://roboticsweekends.blogspot.com/2018/01/setting-up-raspberry-pi-zero-otg-quick.html
+https://styxit.com/2017/03/14/headless-raspberry-setup.html
+https://www.e-tinkers.com/2017/03/boot-raspberry-pi-with-wifi-on-first-boot/
+
+https://stackoverflow.com/questions/19622198/what-does-set-e-mean-in-a-bash-script
+
+https://gist.github.com/etes/aa76a6e9c80579872e5f
+
+https://askubuntu.com/questions/445979/how-to-mount-sd-card-image-created-with-dd
+https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements
+https://www.gngrninja.com/code/2019/3/10/raspberry-pi-headless-setup-with-wifi-and-ssh-enabled
+
+https://elinux.org/RPiconfig
+https://elinux.org/RPiconfig#Enable_ARMv8_on_RPi3B
+https://elinux.org/RPiconfig#CMA_-_dynamic_memory_split
+https://elinux.org/RPi_Advanced_Setup#Setting_up_the_boot_partition
+
+https://www.gnu.org/software/bash/manual/html_node/Arrays.html
+
+https://blog.jasonmeridth.com/posts/git-clone-mirror-vs-git-clone-bare/
+https://help.github.com/en/articles/duplicating-a-repository
+
+
+https://github.com/git/git/blob/master/INSTALL
+https://github.com/martanne/dvtm
+https://cmake.org/cmake/help/latest/manual/cmake-language.7.html#cmake-language-environment-variables
+
+https://raspberrypi.stackexchange.com/questions/73690/how-can-i-install-keybase-and-dependencies-without-running-out-of-memory
+
+https://www.electrictoolbox.com/setting-tab-size-in-nano/
+https://linux.die.net/man/1/nano

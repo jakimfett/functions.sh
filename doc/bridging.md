@@ -27,6 +27,30 @@ For Raspbian Lite, the tool is installed by default. You can immediately jump to
 This uses 256 rounds of bcrypt KDF and the EdDSA reference implementation of the [Twisted Edward curve](https://en.wikipedia.org/wiki/Twisted_Edwards_curve), which is "decently secure" as far as I've been able to determine.  
 Read more about this in the [external sources](#sources).
 
+```
+bridge@nomad:~/src $ ssh-keygen -o -a 256 -t ed25519
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/bridge/.ssh/id_ed25519):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/bridge/.ssh/id_ed25519.
+Your public key has been saved in /home/bridge/.ssh/id_ed25519.pub.
+The key fingerprint is:
+SHA256:RlddKbCpvBWgCqv1RaSoRgJE5LjXcy3vTek/JPW57o8 bridge@nomad
+The key's randomart image is:
++--[ED25519 256]--+
+|=+     . . .o. .o|
+|+   . o . ..o... |
+|oo o . o. .+  .  |
+|o...o oo... o    |
+|.o.oo.o.So o . . |
+|..o .o.+  +.. o  |
+| .   .  ..oo   . |
+|       . +  . .. |
+|        . o..+E..|
++----[SHA256]-----+
+```
+
 ## <a name="key-registration"></a>Register Your Key
 This part is still in progress.  
 
