@@ -51,6 +51,12 @@ alias micloop='pactl load-module module-loopback'
 alias micunloop='pactl unload-module module-loopback'
 alias kd='killall Discord;killall Discord;killall Discord;killall discord;'
 
+# set destructive operations to interactive mode:
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+#alias rmdir='rmdir -i' <-- why isn't this a thing?
+
 # Keep an eye on what's in your ports.
 alias usbScan='chronoStamp && lsusb && echo'
 
@@ -71,12 +77,6 @@ alias twm='dtach -A ~/session/default.$(date +"%s") -r winch dvtm'
 # patchwork'd from https://unix.stackexchange.com/a/349821
 alias ssh-showkey='ssh-keygen -lf <(ssh-keyscan localhost 2>/dev/null)'
 
-# set rm/cp/mv to interactive mode:
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-
-
 # Debian sysadmin alias(es)
 alias update="sudo apt update; sudo apt install -f -y; sudo apt autoremove -y"
 alias uprepair="update; sudo apt install --fix-broken; sudo apt install --fix-missing"
@@ -89,6 +89,8 @@ alias syncfiles='rsync -rvhcO --progress'
 
 # making git less obtuse
 alias gst='clear;echo;echo;echo "repository urls:";git remote -v;echo;git status;echo;echo;'
+alias gft='gst; echo;echo; git fetch origin; git fetch upstream; git fetch badfruit'
 
 # attempt to discover what stuff was installed by the user, vs autoinstalled
 alias ais="grep 'apt' ~/.bash_history | grep install | grep -v failmuffins | sort | uniq | cut  -d' ' -f3- | awk '{print}' ORS=' ' ; echo"
+alias ffsh="find ~/ | grep -v .git | grep -v steam | grep darkpi | sort | uniq > darkpi/sysloc.txt"
