@@ -67,7 +67,9 @@ alias getPublicAddress='curl icanhazip.com'
 # Open a tileable, disconnectable window session.
 # Uses seconds since the unix epoc as the workspace differentiation postfix.
 # command fails if ~/session directory fails to exist, @todo check and remediate
-alias twm='dtach -A ~/session/default.$(date +"%s") -r winch dvtm'
+alias twm='dtach -A ~/session/default -r winch dvtm'
+# additional tiled workspaces queue needed, @todo
+alias twm2='dtach -A ~/session/default.$(date +"%s") -r winch dvtm'
 
 # Multitasking is an essential part of a broken workflow.	# <-- philosophy
 # Do one thing at a time via multiple viewports.
