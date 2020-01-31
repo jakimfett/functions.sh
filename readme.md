@@ -1,6 +1,14 @@
 # functions.sh
 Several shell scripts stacked on top of eachother, attempting to be useful.
 
+# epilogue
+To be perfectly honest, there's too much [Voodoo Programming](http://www.catb.org/jargon/html/V/voodoo-programming.html) and application-specific [heavy wizardry](https://archive.today/dFQHC) in this codebase for it to ever really be considered "safe" for anything but educational use.
+
+This is what we consider the main codebase for `v0.2.x` through `0.8.x`, and  
+if you learn something from it, we'd love to hear from you, [reach out](mailto:jakimfett@assorted.tech).
+
+Some bits, especially `com/core.sh` and `f.sh`, alongside `com/usr/aliases.src`, have been heavily cannibalized for `v0.9.x` and beyond, see [functions.sh](https://functions.sh) for up-to-date versions.
+
 # assumptions
 You solemnly swear you're up to no good.  
 You understand that this is a work in progress.  
