@@ -21,3 +21,11 @@ if [ ! isBridging ]; then
   echo "no bridge found, creating"
   # newBridge
 fi
+
+# /usr/bin/ssh -NTaC 
+#	-o ServerAliveInterval=90 
+#	-o ExitOnForwardFailure=yes 
+#	-o StrictHostKeyChecking=no 
+#	-i /home/bridge/.ssh/id_ed25519 
+#	-R 60022:localhost:22 
+#	bridge@ssh.jakimfett.com
